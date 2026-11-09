@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ремонт по-соседски — Никита Притула</title>
+<meta name="description" content="Профессиональный ремонт и помощь по дому. Честные цены, работа точно в срок, гарантия на все виды работ.">
+<link rel="preload" href="assets/шрифты/InterTight.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="video">
+<div id="entry" hidden aria-label="Вход на сайт" data-lenis-prevent>
+  <video id="entry-film" src="assets/вход.mp4" muted playsinline preload="auto"></video>
+  <div class="entry-caption">
+    <div>
+      <p class="entry-brand"><span class="br">[</span>Ремонт по-соседски<span class="br">]</span></p>
+      <p class="entry-line" role="status"></p>
+    </div>
+    <output aria-hidden="true">0%</output>
+  </div>
+</div>
+<script>if(!location.hash && !matchMedia('(prefers-reduced-motion: reduce)').matches){document.getElementById('entry').hidden=false;document.documentElement.classList.add('entering')}</script>
+<div class="dim" aria-hidden="true"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-tg" viewBox="0 0 24 24"><path fill="currentColor" d="M20.7097 3.6545C20.7097 3.6545 22.6523 2.897 22.4904 4.73664C22.4365 5.49415 21.9508 8.1454 21.573 11.0131L20.278 19.5079C20.278 19.5079 20.17 20.7524 19.1987 20.9688C18.2274 21.1852 16.7704 20.2113 16.5005 19.9949C16.2847 19.8326 12.4534 17.3977 11.1043 16.2074C10.7265 15.8827 10.2948 15.2334 11.1582 14.476L16.8244 9.06525C17.4719 8.41595 18.1194 6.90095 15.4213 8.7406L7.86655 13.8808C7.86655 13.8808 7.00315 14.4219 5.3843 13.9349L1.87671 12.8527C1.87671 12.8527 0.581605 12.0412 2.79408 11.2295C8.19035 8.68645 14.8278 6.0893 20.7097 3.6545Z"/></symbol>
+  <symbol id="i-max" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M11.7041 20.9458C9.83952 20.9458 8.973 20.6724 7.46679 19.5788C6.51407 20.8091 3.49713 21.7705 3.36556 20.1256C3.36556 18.8908 3.09336 17.8474 2.78486 16.7083C2.41738 15.3049 2 13.742 2 11.4774C2 6.06892 6.4188 2 11.6542 2C16.8942 2 20.9999 6.26941 20.9999 11.5276C21.0175 16.7044 16.8585 20.9182 11.7041 20.9458ZM11.7813 6.67493C9.23159 6.5428 7.24449 8.31526 6.80443 11.0947C6.44149 13.3957 7.08571 16.1979 7.63465 16.3438C7.89779 16.4075 8.56015 15.8699 8.973 15.4552C9.65566 15.9289 10.4506 16.2134 11.2777 16.28C13.9195 16.4076 16.1769 14.3876 16.3543 11.7372C16.4576 9.08113 14.4235 6.83148 11.7812 6.67949L11.7813 6.67493Z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 256 256"><path fill="currentColor" d="M224 128a8 8 0 0 1-8 8H40a8 8 0 0 1 0-16h176a8 8 0 0 1 8 8M40 72h176a8 8 0 0 0 0-16H40a8 8 0 0 0 0 16m176 112H40a8 8 0 0 0 0 16h176a8 8 0 0 0 0-16"/></symbol>
+  <symbol id="i-close" viewBox="0 0 256 256"><path fill="currentColor" d="M205.66 194.34a8 8 0 0 1-11.32 11.32L128 139.31l-66.34 66.35a8 8 0 0 1-11.32-11.32L116.69 128L50.34 61.66a8 8 0 0 1 11.32-11.32L128 116.69l66.34-66.35a8 8 0 0 1 11.32 11.32L139.31 128Z"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 256 256"><path fill="currentColor" d="M200 64v104a8 8 0 0 1-16 0V83.31L69.66 197.66a8 8 0 0 1-11.32-11.32L172.69 72H88a8 8 0 0 1 0-16h104a8 8 0 0 1 8 8"/></symbol>
+  <symbol id="i-left" viewBox="0 0 256 256"><path fill="currentColor" d="M224 128a8 8 0 0 1-8 8H59.31l58.35 58.34a8 8 0 0 1-11.32 11.32l-72-72a8 8 0 0 1 0-11.32l72-72a8 8 0 0 1 11.32 11.32L59.31 120H216a8 8 0 0 1 8 8"/></symbol>
+  <symbol id="i-right" viewBox="0 0 256 256"><path fill="currentColor" d="m221.66 133.66l-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32"/></symbol>
+  <symbol id="i-up" viewBox="0 0 256 256"><path fill="currentColor" d="M205.66 117.66a8 8 0 0 1-11.32 0L136 59.31V216a8 8 0 0 1-16 0V59.31l-58.34 58.35a8 8 0 0 1-11.32-11.32l72-72a8 8 0 0 1 11.32 0l72 72a8 8 0 0 1 0 11.32"/></symbol>
+  <symbol id="i-hand" viewBox="0 0 256 256"><path fill="currentColor" d="M224 104v50.93c0 46.2-36.85 84.55-83 85.06a83.7 83.7 0 0 1-60.4-24.59C58.79 192.33 34.15 136 34.15 136a16 16 0 0 1 6.53-22.23c7.66-4 17.1-.84 21.4 6.62l21 36.44a6.09 6.09 0 0 0 6 3.09h.12a8.19 8.19 0 0 0 6.8-8.18V32a16 16 0 0 1 16.77-16c8.61.4 15.23 7.82 15.23 16.43V104a8 8 0 0 0 8.53 8a8.17 8.17 0 0 0 7.47-8.25V88a16 16 0 0 1 16.77-16c8.61.4 15.23 7.82 15.23 16.43V112a8 8 0 0 0 8.53 8a8.17 8.17 0 0 0 7.47-8.25v-7.28c0-8.61 6.62-16 15.23-16.43A16 16 0 0 1 224 104"/></symbol>
+  <symbol id="i-play" viewBox="0 0 30 30"><path fill="currentColor" d="M8 5.2c0-1.5 1.6-2.4 2.9-1.7l14.6 8.6c1.3.8 1.3 2.7 0 3.4l-14.6 8.6C9.6 24.9 8 24 8 22.5Z"/></symbol>
+</svg>
+
+<canvas class="pixels" aria-hidden="true"></canvas>
+
+<header class="header">
+  <a class="logo" href="#top" data-scroll><span>Ремонт</span><span>по-соседски</span></a>
+
+  <nav class="nav" aria-label="Разделы сайта">
+    <div class="nav__bar">
+      <button class="nav__label" type="button" aria-hidden="true" tabindex="-1"><span class="m"><span>Меню</span></span></button>
+      <ul class="nav__links">
+        <li><a href="#pochemu" data-scroll data-roll><span class="m"><span>Почему я?</span></span></a></li>
+        <li><a href="#dlya-kogo" data-scroll data-roll><span class="m"><span>Для кого?</span></span></a></li>
+        <li><a href="#uslugi" data-scroll data-roll><span class="m"><span>Услуги</span></span></a></li>
+        <li><a href="#kejsy" data-scroll data-roll><span class="m"><span>Кейсы</span></span></a></li>
+        <li><a href="#otzyvy" data-scroll data-roll><span class="m"><span>Отзывы</span></span></a></li>
+        <li><a href="#kontakty" data-scroll data-roll><span class="m"><span>Контакты</span></span></a></li>
+        <li class="nav__xli"><button class="nav__x" type="button" aria-label="Свернуть меню"><span class="m"><span><svg class="ico"><use href="#i-close"/></svg></span></span></button></li>
+      </ul>
+      <a class="nav__phone" href="tel:+79164821739">+7 916 482-17-39</a>
+      <div class="nav__msg">
+        <a class="sq" href="https://t.me/" target="_blank" rel="noopener" aria-label="Написать в Telegram"><svg class="ico ico--line"><use href="#i-tg"/></svg></a>
+        <a class="sq" href="https://max.ru/" target="_blank" rel="noopener" aria-label="Написать в MAX"><svg class="ico ico--line"><use href="#i-max"/></svg></a>
+      </div>
+    </div>
+    <span class="nav__neck" aria-hidden="true"></span>
+    <button class="nav__square" type="button" aria-expanded="false" aria-label="Открыть меню">
+      <svg class="ico ico--menu"><use href="#i-menu"/></svg>
+      <svg class="ico ico--close"><use href="#i-close"/></svg>
+    </button>
+  </nav>
+
+  <div class="contacts">
+    <a class="contacts__phone" href="tel:+79164821739" data-roll>+7 916 482-17-39</a>
+    <a class="sq" href="https://t.me/" target="_blank" rel="noopener" aria-label="Написать в Telegram"><svg class="ico ico--line"><use href="#i-tg"/></svg></a>
+    <a class="sq" href="https://max.ru/" target="_blank" rel="noopener" aria-label="Написать в MAX"><svg class="ico ico--line"><use href="#i-max"/></svg></a>
+  </div>
+</header>
+
+<main>
+  <!-- Первый экран: покадровое погружение и «для кого» -->
+  <section class="hero" id="top" data-theme="video">
+    <span class="anchor" id="pochemu"></span>
+    <span class="anchor" id="dlya-kogo"></span>
+    <div class="hero__stage">
+      <canvas class="hero__video"></canvas>
+      <div class="hero__floor" aria-hidden="true"></div>
+      <div class="hero__dark" aria-hidden="true"></div>
+      <div class="hero__grid" aria-hidden="true"></div>
+
+      <div class="hero__intro">
+        <div class="hero__who">
+          <p class="hero__name mono-m split">Никита Притула</p>
+          <p class="hero__area mono-m split">Новое Очаково и&nbsp;соседние районы</p>
+        </div>
+        <h1 class="hero__title split">Профессиональный ремонт и&nbsp;помощь по&nbsp;дому</h1>
+      </div>
+
+      <p class="fact fact--right split" data-fact="1">Честные цены без скрытых платежей и&nbsp;накруток</p>
+      <p class="fact fact--left split" data-fact="2">Оперативность — выполню работу точно в&nbsp;срок</p>
+      <p class="fact fact--right split" data-fact="3">Гарантия качества на&nbsp;все виды работ</p>
+
+      <div class="who">
+        <div class="who__guides" aria-hidden="true">
+          <i style="--x:24"></i><i style="--x:64"></i><i style="--x:72"></i><i style="--x:112"></i><i style="--x:120"></i><i style="--x:160"></i>
+        </div>
+        <h2 class="who__title split">Для кого?</h2>
+        <article class="card" style="--x:24;--y:54">
+          <img src="assets/фото/иконка-вопрос.png" alt="" class="card__icon">
+          <p class="card__text">Для тех, кто не понимает, с&nbsp;чего начать ремонт</p>
+          <i class="dot dot--tl"></i><i class="dot dot--tr"></i><i class="dot dot--bl"></i><i class="dot dot--br"></i>
+        </article>
+        <article class="card" style="--x:72;--y:63">
+          <img src="assets/фото/иконка-время.png" alt="" class="card__icon">
+          <p class="card__text">Для тех, кто не хочет тратить время на&nbsp;поиск мастера на&nbsp;каждый этап</p>
+          <i class="dot dot--tl"></i><i class="dot dot--tr"></i><i class="dot dot--bl"></i><i class="dot dot--br"></i>
+        </article>
+        <article class="card" style="--x:120;--y:44">
+          <img src="assets/фото/иконка-цены.png" alt="" class="card__icon">
+          <p class="card__text">Для тех, кто не хочет переплачивать за&nbsp;материалы</p>
+          <i class="dot dot--tl"></i><i class="dot dot--tr"></i><i class="dot dot--bl"></i><i class="dot dot--br"></i>
+        </article>
+      </div>
+
+      <p class="label label--hero">
+        <span class="m"><span data-label="1">[Почему выбирают меня?]</span></span>
+        <span class="m"><span data-label="2">[Почему выбирают меня?]</span></span>
+      </p>
+    </div>
+  </section>
+
+  <!-- Что могу + горизонтальный скролл -->
+  <section class="services" id="uslugi" data-theme="light" data-pixel="#edecec" data-pixel-back="#201911">
+    <div class="services__stage">
+      <div class="strip">
+        <div class="panel">
+          <h2 class="big" aria-label="Что могу?">
+            <span class="big__w big__w--1"><span class="big__in">Что</span></span>
+            <span class="big__w big__w--2"><span class="big__in">Могу<span class="big__q">?</span></span></span>
+          </h2>
+          <div class="services__desc">
+            <p class="services__kicker">Полный спектр ремонтных и&nbsp;бытовых услуг</p>
+            <p class="services__lead split">Помогу с&nbsp;любыми задачами по&nbsp;ремонту и&nbsp;обустройству квартиры — от&nbsp;сборки мебели до&nbsp;полного ремонта с&nbsp;нуля</p>
+          </div>
+        </div>
+        <div class="render">
+          <div class="render__paint"><img src="assets/фото/рендер.jpg" alt="Квартира после ремонта: прихожая, кухня-гостиная, санузел и спальня" class="render__img" decoding="async"></div>
+          <svg class="render__sketch" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <div class="render__tips"></div>
+        </div>
+      </div>
+      <p class="label label--services">[услуги]</p>
+    </div>
+  </section>
+
+  <!-- Кейсы -->
+  <section class="cases" id="kejsy" data-theme="dark" data-pixel="#201911" data-pixel-back="#edecec">
+    <div class="cases__glow" aria-hidden="true"></div>
+    <p class="label label--cases">[кейсы]</p>
+    <div class="cases__list"></div>
+  </section>
+
+  <!-- Отзывы: чат дома -->
+  <section class="reviews" id="otzyvy" data-theme="dark" data-pixel="#ff4e1d" data-pixel-back="#201911">
+    <div class="reviews__stage">
+      <div class="reviews__glow" aria-hidden="true"></div>
+      <div class="reviews__top">
+        <h2 class="reviews__title split">Соседи о&nbsp;Никите</h2>
+        <p class="reviews__note split">Настоящие отзывы из&nbsp;чата нашего дома</p>
+      </div>
+      <div class="tg">
+        <div class="tg__bar"><i></i><i></i><i></i></div>
+        <div class="tg__body">
+          <aside class="tg__side" aria-hidden="true">
+            <p class="tg__search">Поиск</p>
+            <ul class="tg__chats">
+              <li class="is-active"><span class="tg__ava tg__ava--o">2</span><div><p class="tg__cname">Подъезд 2 Новое Очаково</p><p class="tg__last">Соседка: Вчера Никита установил…</p></div><span class="tg__time">13:41</span></li>
+              <li><span class="tg__ava">Р</span><div><p class="tg__cname">Ремонт, дизайн</p><p class="tg__last">Марина: Самое время рекомендаций</p></div><span class="tg__time">09:40</span></li>
+              <li><span class="tg__ava tg__ava--d">Н</span><div><p class="tg__cname">Никита · ремонт</p><p class="tg__last">Напишите, обсудим ваш ремонт</p></div><span class="tg__time">вчера</span></li>
+            </ul>
+          </aside>
+          <div class="tg__main">
+            <div class="chat__head">
+              <span class="chat__avatar">2</span>
+              <div>
+                <p class="chat__name">Подъезд 2 Новое Очаково</p>
+                <p class="chat__sub">572 участника, 167 в сети</p>
+              </div>
+              <p class="chat__count"><span class="chat__now">1</span> / <span class="chat__all">6</span></p>
+            </div>
+            <div class="chat__pinned">
+              <span class="chat__pin-bar"></span>
+              <div>
+                <p class="chat__pin-title">Закреплённое сообщение</p>
+                <p class="chat__pin-text">Если вдруг у кого-то ещё есть отзывы о Никите — напишите сюда</p>
+              </div>
+            </div>
+            <div class="chat__feed"><div class="chat__inner"></div></div>
+            <a class="chat__compose" href="https://t.me/" target="_blank" rel="noopener">
+              <span data-roll>Написать Никите в личные сообщения</span>
+              <span class="chat__send"><svg class="ico"><use href="#i-arrow"/></svg></span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <p class="label label--reviews">[отзывы]</p>
+    </div>
+  </section>
+</main>
+
+<!-- Футер -->
+<footer class="footer" id="kontakty" data-theme="orange" data-pixel="#ff4e1d" data-pixel-back="#201911">
+  <h2 class="footer__title split">Нужен ремонт? Напишите мне или позвоните — обсудим работы, и&nbsp;я&nbsp;отвечу на&nbsp;все вопросы</h2>
+  <div class="footer__glow" aria-hidden="true"></div>
+  <img class="footer__nikita" src="assets/фото/никита-футер.webp" alt="Никита — мастер «Ремонт по-соседски»">
+
+  <div class="footer__contacts">
+    <a class="footer__phone" href="tel:+79164821739">+7 916 482-17-39</a>
+    <div class="footer__messengers">
+      <a class="sq sq--big" href="https://t.me/" target="_blank" rel="noopener" aria-label="Telegram"><svg class="ico ico--line"><use href="#i-tg"/></svg></a>
+      <a class="sq sq--big" href="https://max.ru/" target="_blank" rel="noopener" aria-label="MAX"><svg class="ico ico--line"><use href="#i-max"/></svg></a>
+    </div>
+    <p class="footer__hours">Ежедневно с&nbsp;9:00 до&nbsp;21:00<br>Москва, Новое Очаково и&nbsp;соседние районы</p>
+  </div>
+
+  <nav class="footer__nav" aria-label="Разделы">
+    <p class="footer__cap">Разделы</p>
+    <a href="#pochemu" data-scroll data-roll>Почему я?</a>
+    <a href="#dlya-kogo" data-scroll data-roll>Для кого?</a>
+    <a href="#uslugi" data-scroll data-roll>Услуги</a>
+    <a href="#kejsy" data-scroll data-roll>Кейсы</a>
+    <a href="#otzyvy" data-scroll data-roll>Отзывы</a>
+  </nav>
+
+  <div class="footer__bottom">
+    <a class="footer__doc" href="#" data-todo data-roll>Типовой договор</a>
+    <div class="footer__legal">
+      <a href="#" data-todo>Политика конфиденциальности</a>
+      <a href="#" data-todo>Согласие на обработку персональных данных</a>
+      <span>Самозанятый, ИНН 000000000000</span>
+    </div>
+    <p class="footer__copy">©2026 Ремонт по-соседски</p>
+  </div>
+</footer>
+
+<!-- Закреплённая кнопка -->
+<div class="cta">
+  <button class="cta__btn" type="button" aria-expanded="false" data-roll>Написать мне</button>
+  <a class="cta__sq" href="https://t.me/" target="_blank" rel="noopener" aria-label="Telegram"><svg class="ico ico--line"><use href="#i-tg"/></svg></a>
+  <a class="cta__sq" href="https://max.ru/" target="_blank" rel="noopener" aria-label="MAX"><svg class="ico ico--line"><use href="#i-max"/></svg></a>
+</div>
+
+<!-- Говорящая голова -->
+<div class="head" role="button" tabindex="0" aria-label="Посмотреть видео: Никита рассказывает о себе">
+  <div class="head__media">
+    <img class="head__poster" src="assets/фото/никита.jpg" alt="">
+    <video class="head__video" src="assets/никита.mp4" playsinline preload="metadata"></video>
+  </div>
+  <span class="head__play"><svg><use href="#i-play"/></svg></span>
+  <svg class="head__ring" viewBox="0 0 100 100" aria-hidden="true">
+    <circle class="head__track" cx="50" cy="50" r="47"/>
+    <circle class="head__progress" cx="50" cy="50" r="47" pathLength="1"/>
+    <circle class="head__knob" cx="97" cy="50" r="2.6"/>
+    <circle class="head__grab" cx="50" cy="50" r="47"/>
+  </svg>
+  <button class="head__close" type="button" aria-label="Свернуть видео"><svg class="ico"><use href="#i-close"/></svg></button>
+</div>
+
+<!-- Попап кейса -->
+<div class="popup" role="dialog" aria-modal="true" aria-labelledby="popup-title" hidden>
+  <div class="popup__bg"></div>
+  <div class="popup__panel">
+    <div class="popup__head">
+      <p class="popup__num"></p>
+      <p class="popup__hint">Листай фото колёсиком или тяни мышкой</p>
+      <div class="popup__arrows">
+        <button class="popup__arr" type="button" data-dir="-1" aria-label="Предыдущее фото"><svg class="ico"><use href="#i-left"/></svg></button>
+        <button class="popup__arr" type="button" data-dir="1" aria-label="Следующее фото"><svg class="ico"><use href="#i-right"/></svg></button>
+      </div>
+      <button class="popup__close" type="button" aria-label="Закрыть"><svg class="ico"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="popup__track"><div class="popup__rail"></div></div>
+    <div class="popup__foot">
+      <h3 class="popup__title" id="popup-title"></h3>
+      <dl class="popup__facts"></dl>
+      <p class="popup__task"></p>
+      <a class="popup__cta" href="https://t.me/" target="_blank" rel="noopener" data-roll>Хочу так же <svg class="ico"><use href="#i-arrow"/></svg></a>
+    </div>
+  </div>
+</div>
+
+<!-- Курсор -->
+<div class="cursor" aria-hidden="true">
+  <i class="cursor__h"></i><i class="cursor__v"></i>
+  <span class="cursor__plus"></span>
+  <svg class="cursor__hand"><use href="#i-hand"/></svg>
+  <span class="cursor__xy"><span class="cursor__x">X:0</span><span class="cursor__y">Y:0</span></span>
+  <span class="cursor__tag cursor__tag--scroll">Листай вниз</span>
+  <span class="cursor__tag cursor__tag--case">Кликни на проект, чтобы узнать подробнее</span>
+</div>
+
+<script src="assets/vendor/gsap.min.js"></script>
+<script src="assets/vendor/ScrollTrigger.min.js"></script>
+<script src="assets/vendor/lenis.min.js"></script>
+<script src="assets/кадры.js"></script>
+<script src="assets/рисовка.js"></script>
+<script src="вход.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
