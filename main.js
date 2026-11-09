@@ -363,7 +363,9 @@ const BASE = window.SITE_BASE || '';
   // и клетки так же быстро исчезают сверху вниз.
   // Назад всё зеркально: край предыдущего блока показался сверху — клетки его цвета идут сверху вниз,
   // страница встаёт к концу предыдущего блока (там, где кончается его закреплённая сцена)
-  const PIX_IN = .7, PIX_HOLD = .1, PIX_OUT = .75;
+  // на телефоне переход дольше и с мягким разгоном: короткий выглядел резким
+  const PIX_IN = mob ? 1.05 : .7, PIX_HOLD = mob ? .15 : .1, PIX_OUT = mob ? 1.1 : .75;
+  const pixEase = x => mob ? x * x * (3 - 2 * x) : x;
   let pixRun = null, pixHold = false, lastWheel = 0, navigating = false, pixEnd = 0, lastDelta = 0;
   const releasePix = () => { pixHold = false; lenis.start(); };
   // Пока идёт переход и пока не кончилась инерция тачпада, колесо гасим: иначе после перехода страница сама уезжает дальше.
@@ -379,9 +381,11 @@ const BASE = window.SITE_BASE || '';
     e.stopImmediatePropagation();
   }, { capture: true, passive: false });
   addEventListener('touchmove', e => { if (pixRun && pixRun.lock) e.preventDefault(); }, { passive: false });
-  function startPixels(sec, dir = 1) {
-    if (pixRun || pixHold || navigating || reduced || !popup.hidden) return;
-    if (touch && performance.now() - pixEnd < 900) return;
+  // valid — проверка, что страница всё ещё за точкой перехода: если старт пришёлся на паузу после прошлого перехода, пробуем чуть позже, а не теряем его
+  function startPixels(sec, dir = 1, valid) {
+    if (navigating || reduced || !popup.hidden) return;
+    const wait = pixRun || pixHold ? 300 : touch ? 500 - (performance.now() - pixEnd) : 0;
+    if (wait > 0) { if (valid) setTimeout(() => valid() && startPixels(sec, dir, valid), wait); return; }
     // кнопка и голова уходят чуть раньше клеток
     cta.classList.add('is-gone'); head.classList.add('is-gone');
     pixRun = { sec, dir, color: dir > 0 ? sec.dataset.pixel : sec.dataset.pixelBack, t0: performance.now() + (touch ? 0 : 180), jumped: false };
@@ -399,8 +403,8 @@ const BASE = window.SITE_BASE || '';
     const W = innerWidth, H = vh(), cs = mob ? W / (W >= 640 ? 24 : 16) : rem() * 4;
     const cols = Math.ceil(W / cs), rows = Math.ceil(H / cs);
     const t = (performance.now() - pixRun.t0) / 1000;
-    const a = clamp(t / PIX_IN, 0, 1) * 1.02;
-    const b = clamp((t - PIX_IN - PIX_HOLD) / PIX_OUT, 0, 1) * 1.02;
+    const a = pixEase(clamp(t / PIX_IN, 0, 1)) * 1.02;
+    const b = pixEase(clamp((t - PIX_IN - PIX_HOLD) / PIX_OUT, 0, 1)) * 1.02;
     if (a >= 1 && !pixRun.jumped) {
       pixRun.jumped = true;
       const top = scrollY + pixRun.sec.getBoundingClientRect().top;
@@ -526,7 +530,8 @@ const BASE = window.SITE_BASE || '';
   lenis.on('scroll', ({ scroll }) => {
     const dir = scroll > lastScroll ? 1 : -1;
     if (Math.abs(scroll - lastScroll) > 2) {
-      header.classList.toggle('is-hidden', dir === 1 && scroll > 120 && !(mob && navOpen));
+      // на телефоне и планшете бургер виден всегда
+      header.classList.toggle('is-hidden', !mob && dir === 1 && scroll > 120);
       header.classList.toggle('is-plate', scroll > 40);
       lastScroll = scroll;
     }
@@ -631,6 +636,7 @@ const BASE = window.SITE_BASE || '';
       popup.hidden = true;
       cancelAnimationFrame(carousel.raf);
       lenis.start();
+      if (mob) header.classList.remove('is-hidden');
       if (!footerVisible) { cta.classList.remove('is-gone'); head.classList.remove('is-gone'); }
     } });
   }
@@ -800,7 +806,7 @@ const BASE = window.SITE_BASE || '';
       defaults: { ease: 'none' },
       onUpdate: () => { want = Math.round(clamp(tl.progress() * HERO_LEN / VIDEO_END, 0, 1) * (FRAMES - 1)); drawFrame(); },
       scrollTrigger: {
-        trigger: '.hero', start: 'top top', end: () => '+=' + vh() * (mob ? 7.3 : 9.6), pin: true, scrub: .4,
+        trigger: '.hero', start: 'top top', end: () => '+=' + vh() * (mob ? 7.3 : 7.6), pin: true, scrub: .4,
         onUpdate: s => { runPhases(s.progress * HERO_LEN); mob && cardsPhase(s.progress * HERO_LEN); },
       },
     });
@@ -832,7 +838,7 @@ const BASE = window.SITE_BASE || '';
     strip = $('.strip');
     const dist = () => strip.scrollWidth - innerWidth;
     // после того как слова разъехались, рендер начинает выезжать со следующим движением, и в конце нет пустого шага
-    const HOLD = 1.35, FIN = .6, PAN = mob ? .9 : 1.25;
+    const HOLD = mob ? 2.4 : 1.35, FIN = .6, PAN = mob ? .9 : 1.25;
     const st = gsap.timeline({
       defaults: { ease: 'none' },
       scrollTrigger: {
@@ -901,13 +907,13 @@ const BASE = window.SITE_BASE || '';
     // заливка стартует, как только край блока показался снизу, чтобы кусок блока не мелькал до пикселей
     pixelSections.forEach(sec => {
       // на телефоне и планшете переход начинается чуть раньше, чем край следующего блока покажется снизу
-      ScrollTrigger.create({ trigger: sec, start: () => touch ? 'top bottom+=' + Math.round(vh() * .2) : 'top bottom-=2', onEnter: () => startPixels(sec) });
+      ScrollTrigger.create({ trigger: sec, start: () => touch ? 'top bottom+=' + Math.round(vh() * .2) : 'top bottom-=2', onEnter: self => startPixels(sec, 1, () => scrollY >= self.start) });
       // точку считаем числом от верха блока: у закреплённого блока запись 'top top' ScrollTrigger переносит за конец его сцены
       ScrollTrigger.create({ start: () => {
         const box = sec.parentElement.classList.contains('pin-spacer') ? sec.parentElement : sec;
         const top = box.getBoundingClientRect().top + scrollY;
-        return touch && box === sec ? top + Math.round(vh() * .2) : top - 2;
-      }, onLeaveBack: () => startPixels(sec, -1) });
+        return top - 2;
+      }, onLeaveBack: self => startPixels(sec, -1, () => scrollY < self.start) });
     });
 
     ScrollTrigger.refresh();
