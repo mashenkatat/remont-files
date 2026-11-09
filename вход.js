@@ -10,7 +10,9 @@
   const counter = caption.querySelector('output');
   const ease = 'cubic-bezier(.32, 0, .12, 1)';
   let frame, exitStarted, current = '', busy = null;
-  const deadline = setTimeout(finish, 10000);
+  // запасной выход, если сеть совсем плохая: прелоудер ждёт загрузку сайта, а не только конец видео
+  const deadline = setTimeout(finish, 45000);
+  let watched = false;
   const chars = t => [...t].map(c => `<span class="ch">${c === ' ' ? '&nbsp;' : c}</span>`).join('');
   // старая подпись уходит вверх по буквам, новая въезжает снизу — как тексты на первом экране
   function setLine(t) {
@@ -38,7 +40,9 @@
   film.addEventListener('error', finish);
   function tick(now) {
     if (entry.hidden) return;
-    const progress = Math.min(1, film.currentTime / 3.25);
+    const seen = Math.min(1, film.currentTime / 3.25);
+    if (seen === 1) watched = true;
+    const progress = Math.min(watched ? 1 : seen, window.siteLoad || 0);
     const percent = Math.floor(progress * 100);
     counter.textContent = percent + '%';
     setLine(percent < 26 ? 'Стучимся…' : percent < 53 ? 'Ждём у двери…' : percent < 82 ? 'Слышишь шаги?' : 'Свои! Заходи.');

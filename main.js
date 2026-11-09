@@ -325,12 +325,19 @@ const BASE = window.SITE_BASE || '';
   const seen = new Set();
   [48, 24, 12, 6, 3, 1].forEach(step => { for (let i = 0; i < FRAMES; i += step) if (!seen.has(i)) { seen.add(i); order.push(i); } });
   let cursorLoad = 0;
+  // готовность для прелоудера: опорные кадры (каждый 6-й), шрифты и все картинки страницы
+  const KEY = Math.ceil(FRAMES / 6);
+  let keyLoaded = 0, fontsOk = 0, pageOk = 0;
+  const report = () => { window.siteLoad = Math.min(1, .8 * keyLoaded / KEY + .1 * fontsOk + .1 * pageOk); };
+  document.fonts.ready.then(() => { fontsOk = 1; report(); });
+  if (document.readyState === 'complete') pageOk = 1; else addEventListener('load', () => { pageOk = 1; report(); });
+  report();
   function loadNext() {
     if (cursorLoad >= order.length) return;
     const i = order[cursorLoad++];
     const img = new Image();
     img.decoding = 'async';
-    img.onload = () => { frames[i] = img; if (Math.abs(i - want) < 30) { drawn = -1; drawFrame(); } loadNext(); };
+    img.onload = () => { frames[i] = img; if (i % 6 === 0) { keyLoaded++; report(); } if (Math.abs(i - want) < 30) { drawn = -1; drawFrame(); } loadNext(); };
     img.onerror = loadNext;
     img.src = `${BASE}assets/кадры/${String(i + 1).padStart(4, '0')}.webp`;
   }
@@ -675,7 +682,7 @@ const BASE = window.SITE_BASE || '';
   const lb = document.createElement('div');
   lb.className = 'lb';
   lb.hidden = true;
-  lb.innerHTML = '<div class="lb__bg"></div><img class="lb__img" alt=""><button class="lb__arr lb__arr--prev" type="button" aria-label="Предыдущее фото"><svg class="ico"><use href="#i-left"/></svg></button><button class="lb__arr lb__arr--next" type="button" aria-label="Следующее фото"><svg class="ico"><use href="#i-right"/></svg></button><button class="lb__close" type="button" aria-label="Закрыть фото"><svg class="ico"><use href="#i-close"/></svg></button><p class="lb__num"></p>';
+  lb.innerHTML = '<div class="lb__bg"></div><img class="lb__img" alt=""><button class="lb__arr lb__arr--prev" type="button" aria-label="Предыдущее фото"><svg class="ico"><use href="#i-left"/></svg></button><button class="lb__arr lb__arr--next" type="button" aria-label="Следующее фото"><svg class="ico"><use href="#i-right"/></svg></button><button class="lb__close" type="button" aria-label="Закрыть фото"><svg class="ico"><use href="#i-close"/></svg></button><p class="lb__num"></p><div class="lb__dots"></div>';
   popup.appendChild(lb);
   const lbImg = $('.lb__img', lb);
   let lbAt = 0;
@@ -684,6 +691,7 @@ const BASE = window.SITE_BASE || '';
     lbAt = (i + imgs.length) % imgs.length;
     lbImg.src = imgs[lbAt].src;
     $('.lb__num', lb).textContent = (lbAt + 1) + ' / ' + imgs.length;
+    $('.lb__dots', lb).innerHTML = imgs.map((_, k) => `<i${k === lbAt ? ' class="is-on"' : ''}></i>`).join('');
     gsap.fromTo(lbImg, { x: dir * 60, opacity: dir ? 0 : 1 }, { x: 0, opacity: 1, duration: .5, ease: out });
   }
   function openLb(i) {
@@ -691,12 +699,12 @@ const BASE = window.SITE_BASE || '';
     showLb(i);
     gsap.fromTo('.lb__bg', { opacity: 0 }, { opacity: 1, duration: .4, ease: out });
     gsap.fromTo(lbImg, { scale: .9, opacity: 0 }, { scale: 1, opacity: 1, duration: .6, ease: soft });
-    gsap.fromTo($$('.lb__arr, .lb__close, .lb__num', lb), { opacity: 0 }, { opacity: 1, duration: .4, delay: .2 });
+    gsap.fromTo($$('.lb__arr, .lb__close, .lb__num, .lb__dots', lb), { opacity: 0 }, { opacity: 1, duration: .4, delay: .2 });
   }
   function closeLb() {
     if (lb.hidden) return;
     gsap.to('.lb__bg', { opacity: 0, duration: .3 });
-    gsap.to([lbImg, ...$$('.lb__arr, .lb__close, .lb__num', lb)], { opacity: 0, duration: .3, onComplete: () => { lb.hidden = true; } });
+    gsap.to([lbImg, ...$$('.lb__arr, .lb__close, .lb__num, .lb__dots', lb)], { opacity: 0, duration: .3, onComplete: () => { lb.hidden = true; } });
   }
   $('.lb__prev, .lb__arr--prev', lb).addEventListener('click', () => showLb(lbAt - 1, -1));
   $('.lb__arr--next', lb).addEventListener('click', () => showLb(lbAt + 1, 1));
@@ -760,6 +768,17 @@ const BASE = window.SITE_BASE || '';
     if (mob) phase([label2], WHO_AT + .3, 99);
     phase(whoTitle, WHO_AT + .3, 99);
     let ready = false, lastP = 0;
+    // на телефоне карточки едут по своему времени, а не за пальцем: после сильного броска они не пролетают молнией
+    let cardsOn = false;
+    if (mob) gsap.set('.card', { y: () => vh() });
+    function cardsPhase(p) {
+      const want = p >= WHO_AT + .4;
+      if (want === cardsOn) return;
+      cardsOn = want;
+      gsap.killTweensOf('.card');
+      if (want) gsap.to('.card', { y: 0, duration: 1.1, stagger: .22, ease: 'power3.out' });
+      else gsap.set('.card', { y: () => vh() });
+    }
     function runPhases(p) {
       if (!ready) return;
       const down = p >= lastP;
@@ -782,12 +801,13 @@ const BASE = window.SITE_BASE || '';
       onUpdate: () => { want = Math.round(clamp(tl.progress() * HERO_LEN / VIDEO_END, 0, 1) * (FRAMES - 1)); drawFrame(); },
       scrollTrigger: {
         trigger: '.hero', start: 'top top', end: () => '+=' + vh() * (mob ? 7.3 : 9.6), pin: true, scrub: .4,
-        onUpdate: s => runPhases(s.progress * HERO_LEN),
+        onUpdate: s => { runPhases(s.progress * HERO_LEN); mob && cardsPhase(s.progress * HERO_LEN); },
       },
     });
     tl.to('.hero__dark', { opacity: .55, duration: .8 }, WHO_AT)
-      .fromTo('.who__guides i', { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: .8, stagger: .05, ease: 'power2.out' }, WHO_AT + .1)
-      .fromTo('.card', { y: () => vh() }, { y: 0, duration: mob ? 2 : 1.1, stagger: mob ? .5 : .2, ease: 'power3.out' }, WHO_AT + .4)
+      .fromTo('.who__guides i', { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: .8, stagger: .05, ease: 'power2.out' }, WHO_AT + .1);
+    if (!mob) tl.fromTo('.card', { y: () => vh() }, { y: 0, duration: 1.1, stagger: .2, ease: 'power3.out' }, WHO_AT + .4);
+    tl
       .to({}, { duration: .01 }, HERO_LEN - .01);
     heroST = tl.scrollTrigger;
     document.documentElement.classList.add('is-ready');
@@ -812,7 +832,7 @@ const BASE = window.SITE_BASE || '';
     strip = $('.strip');
     const dist = () => strip.scrollWidth - innerWidth;
     // после того как слова разъехались, рендер начинает выезжать со следующим движением, и в конце нет пустого шага
-    const HOLD = .35, FIN = .6, PAN = mob ? .9 : 1.25;
+    const HOLD = 1.35, FIN = .6, PAN = mob ? .9 : 1.25;
     const st = gsap.timeline({
       defaults: { ease: 'none' },
       scrollTrigger: {

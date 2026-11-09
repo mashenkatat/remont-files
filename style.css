@@ -763,5 +763,9 @@ html:not(.is-ready) :is(.hero__intro, .fact, .who__title, .who__guides, .card, .
   .lb__arr { top: auto; bottom: calc(2.4rem + var(--vb, 0px)); margin: 0; width: var(--btn); height: var(--btn); }
   .lb__arr--prev { left: var(--pad); } .lb__arr--next { right: var(--pad); }
   .lb__close { right: var(--pad); top: 2.4rem; width: var(--btn); height: var(--btn); }
-  .lb__num { left: var(--pad); top: 2.4rem; line-height: var(--btn); }
+  .lb__arr, .lb__num { display: none; }
+  .lb__dots { position: absolute; left: 0; right: 0; bottom: calc(3.2rem + var(--vb, 0px)); display: flex; justify-content: center; gap: .8rem; pointer-events: none; }
+  .lb__dots i { width: .8rem; height: .8rem; border-radius: 50%; background: rgba(252, 251, 251, .3); transition: background-color .3s, scale .3s var(--ease-out); }
+  .lb__dots i.is-on { background: var(--orange); scale: 1.25; }
 }
+@media (min-width: 1024px) { .lb__dots { display: none; } }
