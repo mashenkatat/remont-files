@@ -743,7 +743,8 @@ html:not(.is-ready) :is(.hero__intro, .fact, .who__title, .who__guides, .card, .
 @media (max-width: 1023px) { .popup__arrows { display: none; } }
 
 /* Никита в футере на телефоне меньше и по центру */
-@media (max-width: 639px) { .footer__nikita { width: 125%; max-width: none; align-self: center; margin-top: -6rem; } }
+@media (max-width: 639px) { .footer__nikita { width: 125%; max-width: none; align-self: center; margin-top: -6rem; }
+  .footer__bottom { position: relative; left: auto; right: auto; bottom: auto; order: 5; margin: -14rem 0 0; padding-bottom: calc(2.4rem + var(--vb, 0px)); z-index: 2; } }
 
 /* крупный просмотр фото в попапе */
 .lb { position: absolute; inset: 0; z-index: 10; display: grid; place-items: center; }

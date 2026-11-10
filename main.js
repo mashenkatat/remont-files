@@ -381,11 +381,26 @@ const BASE = window.SITE_BASE || '';
     e.stopImmediatePropagation();
   }, { capture: true, passive: false });
   addEventListener('touchmove', e => { if (pixRun && pixRun.lock) e.preventDefault(); }, { passive: false });
-  // valid — проверка, что страница всё ещё за точкой перехода: если старт пришёлся на паузу после прошлого перехода, пробуем чуть позже, а не теряем его
+  // Во время перехода новые запросы игнорируем: их вызывает остаток броска и сам прыжок страницы, а не человек.
+  // В короткую паузу после перехода запрос откладывается (храним только последний) и перепроверяется через valid
+  let pending = null, pendingT = 0;
+  // появление текстов ждёт конца перехода, чтобы буквы не проступали сквозь клетки
+  const afterPix = [];
+  window.whenPixDone = f => pixRun ? afterPix.push(f) : f();
+  const pxlog = m => window.__pxlog && window.__pxlog.push(Math.round(performance.now()) + ' ' + m);
   function startPixels(sec, dir = 1, valid) {
     if (navigating || reduced || !popup.hidden) return;
-    const wait = pixRun || pixHold ? 300 : touch ? 500 - (performance.now() - pixEnd) : 0;
-    if (wait > 0) { if (valid) setTimeout(() => valid() && startPixels(sec, dir, valid), wait); return; }
+    if (pixRun || pixHold) { pxlog('skip ' + sec.className + dir); return; }
+    const wait = touch ? 500 - (performance.now() - pixEnd) : 0;
+    if (wait > 0) {
+      pending = { sec, dir, valid };
+      clearTimeout(pendingT);
+      pendingT = setTimeout(() => { const p = pending; pending = null; if (p && (!p.valid || p.valid())) startPixels(p.sec, p.dir, p.valid); }, wait);
+      pxlog('queue ' + sec.className + dir);
+      return;
+    }
+    pending = null; clearTimeout(pendingT);
+    pxlog('start ' + sec.className + dir + ' y=' + Math.round(scrollY));
     // кнопка и голова уходят чуть раньше клеток
     cta.classList.add('is-gone'); head.classList.add('is-gone');
     pixRun = { sec, dir, color: dir > 0 ? sec.dataset.pixel : sec.dataset.pixelBack, t0: performance.now() + (touch ? 0 : 180), jumped: false };
@@ -408,7 +423,8 @@ const BASE = window.SITE_BASE || '';
     if (a >= 1 && !pixRun.jumped) {
       pixRun.jumped = true;
       const top = scrollY + pixRun.sec.getBoundingClientRect().top;
-      pixRun.to = pixRun.dir > 0 ? top : top - H;
+      // назад встаём чуть выше точки, где на телефоне стартует переход вперёд: иначе следующий свайп вниз его уже не запустит
+      pixRun.to = pixRun.dir > 0 ? top : top - H - (touch ? Math.round(H * .2) + 4 : 0);
       lenis.scrollTo(pixRun.to, { immediate: true, force: true });
       ScrollTrigger.update();
     }
@@ -416,7 +432,9 @@ const BASE = window.SITE_BASE || '';
     if (b >= 1.02) {
       // за время перехода остаток броска мог сдвинуть страницу: ставим её точно в начало блока ещё раз
       if (pixRun.lock) { if (pixRun.to !== undefined) lenis.scrollTo(pixRun.to, { immediate: true, force: true }); lenis.start(); }
+      pxlog('end y=' + Math.round(scrollY));
       pixRun = null; pixEnd = performance.now();
+      afterPix.splice(0).forEach(f => f());
       if (!footerVisible) { cta.classList.remove('is-gone'); head.classList.remove('is-gone'); }
       return;
     }
@@ -746,7 +764,7 @@ const BASE = window.SITE_BASE || '';
     let tw;
     ScrollTrigger.create({
       trigger, start, end: 'max',
-      onEnter: () => { tw = charsIn(els); extra.onEnter && extra.onEnter(); },
+      onEnter: () => whenPixDone(() => { tw = charsIn(els); extra.onEnter && extra.onEnter(); }),
       onLeaveBack: () => { tw && tw.kill(); gsap.set(els, { yPercent: 140 }); },
     });
   }
@@ -822,7 +840,7 @@ const BASE = window.SITE_BASE || '';
     gsap.set('.big__in', { yPercent: 150, rotate: 2 });
     ScrollTrigger.create({
       trigger: '.services', start: 'top 70%', end: 'max',
-      onEnter: () => gsap.to('.big__in', { yPercent: 0, rotate: 0, ease: 'power4.inOut', duration: 1, stagger: .1, overwrite: true }),
+      onEnter: () => whenPixDone(() => gsap.to('.big__in', { yPercent: 0, rotate: 0, ease: 'power4.inOut', duration: 1, stagger: .1, overwrite: true })),
       onLeaveBack: () => gsap.set('.big__in', { yPercent: 150, rotate: 2, overwrite: true }),
     });
     // слова стоят по левому краю; в конце они встают туда же, где стояли раньше, когда были по центру
@@ -846,7 +864,7 @@ const BASE = window.SITE_BASE || '';
         onUpdate: s => {
           const on = s.progress * (s.end - s.start) > vh() * 0.03;
           // назад заголовок сразу собирается целиком, без обратной анимации
-          if (on !== opened) { opened = on; on ? openTl.play() : openTl.pause(0); }
+          if (on !== opened) { opened = on; on ? whenPixDone(() => opened && openTl.play()) : openTl.pause(0); }
         },
       },
     });
