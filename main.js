@@ -386,8 +386,9 @@ const BASE = window.SITE_BASE || '';
   // Назад всё зеркально: край предыдущего блока показался сверху — клетки его цвета идут сверху вниз,
   // страница встаёт к концу предыдущего блока (там, где кончается его закреплённая сцена)
   // на телефоне переход дольше и с мягким разгоном: короткий выглядел резким
-  const PIX_IN = mob ? .85 : .7, PIX_HOLD = mob ? .05 : .1, PIX_OUT = mob ? .4 : .35;
-  const pixEase = x => mob ? x * x * (3 - 2 * x) : x;
+  const PIX_IN = mob ? .95 : .85, PIX_HOLD = mob ? .06 : .1, PIX_OUT = mob ? .5 : .45;
+  // плавный разгон и торможение на всех устройствах; SOFT — ширина мягкой кромки заливки в долях прогресса
+  const pixEase = x => x * x * (3 - 2 * x), PIX_SOFT = .22;
   let pixRun = null, pixHold = false, lastWheel = 0, navigating = false, pixEnd = 0, lastDelta = 0;
   const releasePix = () => { pixHold = false; lenis.start(); };
   // Пока идёт переход и пока не кончилась инерция тачпада, колесо гасим: иначе после перехода страница сама уезжает дальше.
@@ -455,7 +456,7 @@ const BASE = window.SITE_BASE || '';
       pixRun.jumped = true;
       const top = scrollY + pixRun.sec.getBoundingClientRect().top;
       // назад встаём чуть выше точки, где на телефоне стартует переход вперёд: иначе следующий свайп вниз его уже не запустит
-      pixRun.to = pixRun.dir > 0 ? top : top - H - (touch ? Math.round(H * .2) + 4 : 0);
+      pixRun.to = pixRun.dir > 0 ? top : top - H - (touch ? Math.round(H * .35) + 4 : 0);
       lenis.scrollTo(pixRun.to, { immediate: true, force: true });
       ScrollTrigger.update();
     }
@@ -481,12 +482,17 @@ const BASE = window.SITE_BASE || '';
       pctx.globalAlpha = 1;
       return;
     }
+    // у кромки клетки не вспыхивают сразу, а проявляются за PIX_SOFT прогресса: переход читается плавнее
     for (let r = 0; r < rows; r++) {
       const up = pixRun.dir < 0 ? r / rows : (rows - 1 - r) / rows;
       for (let c = 0; c < cols; c++) {
-        if (a > up * .6 + noise(c, r) * .4) pctx.fillRect(c * cs, r * cs, cs + .5, cs + .5);
+        const k = (a - (up * .6 + noise(c, r) * .4)) / PIX_SOFT;
+        if (k <= 0) continue;
+        pctx.globalAlpha = k < 1 ? k : 1;
+        pctx.fillRect(c * cs, r * cs, cs + .5, cs + .5);
       }
     }
+    pctx.globalAlpha = 1;
   }
 
   /* ---------- Тема (цвет сетки, курсора, меню и кнопок) ---------- */
@@ -987,8 +993,8 @@ const BASE = window.SITE_BASE || '';
 
     // заливка стартует, как только край блока показался снизу, чтобы кусок блока не мелькал до пикселей
     pixelSections.forEach(sec => {
-      // на телефоне и планшете переход начинается, когда край следующего блока показался снизу на 20% экрана
-      ScrollTrigger.create({ trigger: sec, start: () => touch ? 'top bottom-=' + Math.round(vh() * .2) : 'top bottom-=2', onEnter: self => startPixels(sec, 1, () => scrollY >= self.start) });
+      // на таче переход начинается заранее: край следующего блока ещё на 25% экрана ниже, чтобы его кусок не мелькал
+      ScrollTrigger.create({ trigger: sec, start: () => touch ? 'top bottom+=' + Math.round(vh() * .25) : 'top bottom-=2', onEnter: self => startPixels(sec, 1, () => scrollY >= self.start) });
       // точку считаем числом от верха блока: у закреплённого блока запись 'top top' ScrollTrigger переносит за конец его сцены
       ScrollTrigger.create({ start: () => {
         const box = sec.parentElement.classList.contains('pin-spacer') ? sec.parentElement : sec;
@@ -996,6 +1002,10 @@ const BASE = window.SITE_BASE || '';
         return top - 2;
       }, onLeaveBack: self => startPixels(sec, -1, () => scrollY < self.start) });
     });
+
+    // подсказка «листай вниз» уходит, как только человек тронул страницу
+    const hint = $('.hint');
+    if (hint) ScrollTrigger.create({ start: 40, onEnter: () => hint.classList.add('is-gone'), onLeaveBack: () => hint.classList.remove('is-gone') });
 
     ScrollTrigger.refresh();
     if (!lastWheel) startTop();

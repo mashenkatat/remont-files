@@ -3,7 +3,14 @@
   const entry = document.querySelector('#entry');
   let done;
   window.entryDone = new Promise(r => { done = r; });
-  if (entry.hidden) { done(); return; }
+  // прелоудер показывается один раз на вкладку: при повторном открытии или перезагрузке сайт открывается сразу
+  if (entry.hidden || sessionStorage.getItem('entered')) {
+    entry.hidden = true;
+    document.documentElement.classList.remove('entering');
+    done();
+    return;
+  }
+  sessionStorage.setItem('entered', '1');
   const film = entry.querySelector('video');
   const caption = entry.querySelector('.entry-caption');
   const line = caption.querySelector('.entry-line');
