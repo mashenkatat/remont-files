@@ -325,19 +325,19 @@ const BASE = window.SITE_BASE || '';
   const seen = new Set();
   [48, 24, 12, 6, 3, 1].forEach(step => { for (let i = 0; i < FRAMES; i += step) if (!seen.has(i)) { seen.add(i); order.push(i); } });
   let cursorLoad = 0;
-  // готовность для прелоудера: опорные кадры (каждый 6-й), шрифты и все картинки страницы
-  const KEY = Math.ceil(FRAMES / 6);
-  let keyLoaded = 0, fontsOk = 0, pageOk = 0;
-  const report = () => { window.siteLoad = Math.min(1, .8 * keyLoaded / KEY + .1 * fontsOk + .1 * pageOk); };
+  // готовность для прелоудера: первая волна кадров (каждый 48-й, их хватает, чтобы первый экран не был пустым) и шрифты;
+  // остальное догружается уже на открытом сайте
+  const KEY = Math.ceil(FRAMES / 48);
+  let keyLoaded = 0, fontsOk = 0;
+  const report = () => { window.siteLoad = Math.min(1, .8 * keyLoaded / KEY + .2 * fontsOk); };
   document.fonts.ready.then(() => { fontsOk = 1; report(); });
-  if (document.readyState === 'complete') pageOk = 1; else addEventListener('load', () => { pageOk = 1; report(); });
   report();
   function loadNext() {
     if (cursorLoad >= order.length) return;
     const i = order[cursorLoad++];
     const img = new Image();
     img.decoding = 'async';
-    img.onload = () => { frames[i] = img; if (i % 6 === 0) { keyLoaded++; report(); } if (Math.abs(i - want) < 30) { drawn = -1; drawFrame(); } loadNext(); };
+    img.onload = () => { frames[i] = img; if (i % 48 === 0) { keyLoaded++; report(); } if (Math.abs(i - want) < 30) { drawn = -1; drawFrame(); } loadNext(); };
     img.onerror = loadNext;
     img.src = `${BASE}assets/кадры/${String(i + 1).padStart(4, '0')}.webp`;
   }
@@ -383,15 +383,24 @@ const BASE = window.SITE_BASE || '';
   addEventListener('touchmove', e => { if (pixRun && pixRun.lock) e.preventDefault(); }, { passive: false });
   // Во время перехода новые запросы игнорируем: их вызывает остаток броска и сам прыжок страницы, а не человек.
   // В короткую паузу после перехода запрос откладывается (храним только последний) и перепроверяется через valid
-  let pending = null, pendingT = 0;
+  let pending = null, pendingT = 0, lastTouch = 0, lastTo;
+  addEventListener('touchstart', () => { lastTouch = performance.now(); }, { passive: true });
   // появление текстов ждёт конца перехода, чтобы буквы не проступали сквозь клетки
   const afterPix = [];
   window.whenPixDone = f => pixRun ? afterPix.push(f) : f();
+  // если блок открылся под заливкой, его тексты ставим сразу на место: из-под клеток блок выходит уже готовым, без пустой паузы
+  window.underPix = () => !!pixRun;
   const pxlog = m => window.__pxlog && window.__pxlog.push(Math.round(performance.now()) + ' ' + m);
   function startPixels(sec, dir = 1, valid) {
     if (navigating || reduced || !popup.hidden) return;
     if (pixRun || pixHold) { pxlog('skip ' + sec.className + dir); return; }
     const wait = touch ? 500 - (performance.now() - pixEnd) : 0;
+    // сразу после перехода без нового касания запрос даёт только хвост инерции: возвращаем страницу на место вместо второго перехода
+    if (touch && performance.now() - pixEnd < 900 && lastTouch < pixEnd) {
+      pxlog('drop ' + sec.className + dir);
+      if (lastTo !== undefined) lenis.scrollTo(lastTo, { immediate: true, force: true });
+      return;
+    }
     if (wait > 0) {
       pending = { sec, dir, valid };
       clearTimeout(pendingT);
@@ -403,7 +412,7 @@ const BASE = window.SITE_BASE || '';
     pxlog('start ' + sec.className + dir + ' y=' + Math.round(scrollY));
     // кнопка и голова уходят чуть раньше клеток
     cta.classList.add('is-gone'); head.classList.add('is-gone');
-    pixRun = { sec, dir, color: dir > 0 ? sec.dataset.pixel : sec.dataset.pixelBack, t0: performance.now() + (touch ? 0 : 180), jumped: false };
+    pixRun = { sec, dir, color: dir > 0 ? sec.dataset.pixel : sec.dataset.pixelBack, t0: performance.now() + (touch ? 0 : 180), jumped: false, y0: scrollY };
     // на телефоне прокрутку держим с первого кадра: так гасится инерция броска, и страница не пролетает через блоки
     if (touch) { pixRun.lock = true; lenis.stop(); return; }
     pixHold = true;
@@ -428,11 +437,14 @@ const BASE = window.SITE_BASE || '';
       lenis.scrollTo(pixRun.to, { immediate: true, force: true });
       ScrollTrigger.update();
     }
+    // на телефоне инерция броска продолжает двигать страницу под заливкой: каждый кадр держим её на месте
+    else if (pixRun.lock) { const y = pixRun.jumped ? pixRun.to : pixRun.y0; if (Math.abs(scrollY - y) > 1) window.scrollTo(0, y); }
     pctx.clearRect(0, 0, W, H);
     if (b >= 1.02) {
       // за время перехода остаток броска мог сдвинуть страницу: ставим её точно в начало блока ещё раз
       if (pixRun.lock) { if (pixRun.to !== undefined) lenis.scrollTo(pixRun.to, { immediate: true, force: true }); lenis.start(); }
       pxlog('end y=' + Math.round(scrollY));
+      lastTo = pixRun.to;
       pixRun = null; pixEnd = performance.now();
       afterPix.splice(0).forEach(f => f());
       if (!footerVisible) { cta.classList.remove('is-gone'); head.classList.remove('is-gone'); }
@@ -453,7 +465,8 @@ const BASE = window.SITE_BASE || '';
   /* ---------- Тема (цвет сетки, курсора, меню и кнопок) ---------- */
   const themed = $$('[data-theme]').filter(el => el !== document.body);
   // после карточек «Для кого?» ещё ~3 шага стоят на экране, прежде чем начнётся переход
-  const HERO_LEN = 16.6, WHO_AT = 11.6;
+  // на телефоне после «Для кого?» хвост короче: карточки едут по таймеру, длинная пауза за ними не нужна
+  const HERO_LEN = mob ? 14.4 : 16.6, WHO_AT = 11.6;
   let heroST, servicesST, footerVisible = false;
   function updateTheme() {
     const mid = vh() / 2;
@@ -764,7 +777,7 @@ const BASE = window.SITE_BASE || '';
     let tw;
     ScrollTrigger.create({
       trigger, start, end: 'max',
-      onEnter: () => whenPixDone(() => { tw = charsIn(els); extra.onEnter && extra.onEnter(); }),
+      onEnter: () => { if (underPix()) gsap.set(els, { yPercent: 0 }); else tw = charsIn(els); extra.onEnter && extra.onEnter(); },
       onLeaveBack: () => { tw && tw.kill(); gsap.set(els, { yPercent: 140 }); },
     });
   }
@@ -824,7 +837,7 @@ const BASE = window.SITE_BASE || '';
       defaults: { ease: 'none' },
       onUpdate: () => { want = Math.round(clamp(tl.progress() * HERO_LEN / VIDEO_END, 0, 1) * (FRAMES - 1)); drawFrame(); },
       scrollTrigger: {
-        trigger: '.hero', start: 'top top', end: () => '+=' + vh() * (mob ? 7.3 : 7.6), pin: true, scrub: .4,
+        trigger: '.hero', start: 'top top', end: () => '+=' + vh() * (mob ? 6.35 : 7.6), pin: true, scrub: .4,
         onUpdate: s => { runPhases(s.progress * HERO_LEN); mob && cardsPhase(s.progress * HERO_LEN); },
       },
     });
@@ -840,7 +853,7 @@ const BASE = window.SITE_BASE || '';
     gsap.set('.big__in', { yPercent: 150, rotate: 2 });
     ScrollTrigger.create({
       trigger: '.services', start: 'top 70%', end: 'max',
-      onEnter: () => whenPixDone(() => gsap.to('.big__in', { yPercent: 0, rotate: 0, ease: 'power4.inOut', duration: 1, stagger: .1, overwrite: true })),
+      onEnter: () => underPix() ? gsap.set('.big__in', { yPercent: 0, rotate: 0, overwrite: true }) : gsap.to('.big__in', { yPercent: 0, rotate: 0, ease: 'power4.inOut', duration: 1, stagger: .1, overwrite: true }),
       onLeaveBack: () => gsap.set('.big__in', { yPercent: 150, rotate: 2, overwrite: true }),
     });
     // слова стоят по левому краю; в конце они встают туда же, где стояли раньше, когда были по центру
@@ -856,13 +869,15 @@ const BASE = window.SITE_BASE || '';
     strip = $('.strip');
     const dist = () => strip.scrollWidth - innerWidth;
     // после того как слова разъехались, рендер начинает выезжать со следующим движением, и в конце нет пустого шага
-    const HOLD = mob ? 2.4 : 1.35, FIN = .6, PAN = mob ? .9 : 1.25;
+    const HOLD = mob ? 1.2 : 1.35, FIN = .6, PAN = mob ? 1.2 : 1.25;
     const st = gsap.timeline({
       defaults: { ease: 'none' },
       scrollTrigger: {
         trigger: '.services', start: 'top top', end: () => '+=' + (vh() * (HOLD + FIN) + dist() * PAN), pin: true, scrub: .6, invalidateOnRefresh: true, onRefresh: measureRender,
         onUpdate: s => {
-          const on = s.progress * (s.end - s.start) > vh() * 0.03;
+          // открываем после 3% экрана, а собираем только у самого верха: иначе дрожание пальца у порога заставляло заголовок мигать
+          const d = s.progress * (s.end - s.start);
+          const on = opened ? d > 2 : d > vh() * 0.03;
           // назад заголовок сразу собирается целиком, без обратной анимации
           if (on !== opened) { opened = on; on ? whenPixDone(() => opened && openTl.play()) : openTl.pause(0); }
         },

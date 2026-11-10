@@ -10,8 +10,8 @@
   const counter = caption.querySelector('output');
   const ease = 'cubic-bezier(.32, 0, .12, 1)';
   let frame, exitStarted, current = '', busy = null;
-  // запасной выход, если сеть совсем плохая: прелоудер ждёт загрузку сайта, а не только конец видео
-  const deadline = setTimeout(finish, 45000);
+  // запасной выход, если сеть совсем плохая: прелоудер ждёт первые кадры и шрифты, но не дольше 7 секунд
+  const deadline = setTimeout(finish, 7000);
   let watched = false;
   const chars = t => [...t].map(c => `<span class="ch">${c === ' ' ? '&nbsp;' : c}</span>`).join('');
   // старая подпись уходит вверх по буквам, новая въезжает снизу — как тексты на первом экране
