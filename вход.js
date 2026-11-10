@@ -10,8 +10,8 @@
   const counter = caption.querySelector('output');
   const ease = 'cubic-bezier(.32, 0, .12, 1)';
   let frame, exitStarted, current = '', busy = null;
-  // запасной выход, если сеть совсем плохая: прелоудер ждёт первые кадры и шрифты, но не дольше 7 секунд
-  const deadline = setTimeout(finish, 7000);
+  // запасной выход, если сеть совсем плохая: прелоудер ждёт готовности первого экрана, но не дольше 15 секунд
+  const deadline = setTimeout(finish, 15000);
   let watched = false;
   const chars = t => [...t].map(c => `<span class="ch">${c === ' ' ? '&nbsp;' : c}</span>`).join('');
   // старая подпись уходит вверх по буквам, новая въезжает снизу — как тексты на первом экране
@@ -42,7 +42,13 @@
     if (entry.hidden) return;
     const seen = Math.min(1, film.currentTime / 3.25);
     if (seen === 1) watched = true;
-    const progress = Math.min(watched ? 1 : seen, window.siteLoad || 0);
+    entry.classList.toggle('is-wait', watched && !exitStarted);
+    // сайт готов, когда загружены первые кадры и шрифты и главный скрипт расставил первый экран (html.is-ready)
+    const load = Math.min(window.siteLoad || 0, document.documentElement.classList.contains('is-ready') ? 1 : .95);
+    // если загрузка отстаёт, видео замедляется, а не замирает на глазке
+    const rate = seen > load + .08 ? .35 : 1;
+    if (film.playbackRate !== rate) film.playbackRate = rate;
+    const progress = Math.min(watched ? 1 : seen, load);
     const percent = Math.floor(progress * 100);
     counter.textContent = percent + '%';
     setLine(percent < 26 ? 'Стучимся…' : percent < 53 ? 'Ждём у двери…' : percent < 82 ? 'Слышишь шаги?' : 'Свои! Заходи.');

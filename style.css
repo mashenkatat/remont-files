@@ -614,6 +614,9 @@ html.entering, html.entering body { overflow: hidden; overscroll-behavior: none;
 #entry { position: fixed; inset: 0; z-index: 2147483647; background: var(--dark); color: var(--white); isolation: isolate; }
 #entry[hidden] { display: none; }
 #entry-film { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* видео кончилось раньше загрузки: глазок медленно «дышит», а не стоит замершим кадром */
+#entry.is-wait #entry-film { animation: entry-breathe 2.4s ease-in-out infinite; }
+@keyframes entry-breathe { 50% { scale: 1.04; } }
 .entry-caption { position: absolute; left: 0; right: 0; bottom: 0; padding: 12vh 4rem 4.4rem; display: flex; align-items: flex-end; justify-content: space-between; gap: 2.4rem; background: linear-gradient(rgba(32, 25, 17, 0), rgba(32, 25, 17, .8)); }
 .entry-brand { font: 500 2.4rem/3rem 'Feature Mono', monospace; text-transform: uppercase; }
 .entry-line { margin-top: 2.4rem; overflow: hidden; padding-bottom: .06em; font-weight: 600; font-size: 8.8rem; line-height: 1; text-transform: uppercase; white-space: nowrap; }
@@ -743,7 +746,7 @@ html:not(.is-ready) :is(.hero__intro, .fact, .who__title, .who__guides, .card, .
 @media (max-width: 1023px) { .popup__arrows { display: none; } }
 
 /* Никита в футере на телефоне меньше и по центру */
-@media (max-width: 639px) { .footer__nikita { width: 125%; max-width: none; align-self: center; margin-top: 2rem; }
+@media (max-width: 639px) { .footer__nikita { width: 125%; max-width: none; align-self: center; margin-top: -16.6rem; }
   .footer__bottom { bottom: calc(16px + var(--vb, 0px)); z-index: 2; } }
 
 /* крупный просмотр фото в попапе */

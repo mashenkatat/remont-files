@@ -364,7 +364,7 @@ const BASE = window.SITE_BASE || '';
   // Назад всё зеркально: край предыдущего блока показался сверху — клетки его цвета идут сверху вниз,
   // страница встаёт к концу предыдущего блока (там, где кончается его закреплённая сцена)
   // на телефоне переход дольше и с мягким разгоном: короткий выглядел резким
-  const PIX_IN = mob ? 1.05 : .7, PIX_HOLD = mob ? .15 : .1, PIX_OUT = mob ? 1.1 : .75;
+  const PIX_IN = mob ? .85 : .7, PIX_HOLD = mob ? .05 : .1, PIX_OUT = mob ? .4 : .35;
   const pixEase = x => mob ? x * x * (3 - 2 * x) : x;
   let pixRun = null, pixHold = false, lastWheel = 0, navigating = false, pixEnd = 0, lastDelta = 0;
   const releasePix = () => { pixHold = false; lenis.start(); };
@@ -451,13 +451,18 @@ const BASE = window.SITE_BASE || '';
       return;
     }
     pctx.fillStyle = pixRun.color;
+    // клетками экран только закрывается; открывается он плавным растворением всей заливки:
+    // цвет заливки совпадает с фоном нового блока, и при уходе клетками его тексты проступали кусками
+    if (b > 0) {
+      pctx.globalAlpha = 1 - Math.min(1, b);
+      pctx.fillRect(0, 0, W, H);
+      pctx.globalAlpha = 1;
+      return;
+    }
     for (let r = 0; r < rows; r++) {
-      let up = (rows - 1 - r) / rows, down = r / rows;
-      if (pixRun.dir < 0) [up, down] = [down, up];
+      const up = pixRun.dir < 0 ? r / rows : (rows - 1 - r) / rows;
       for (let c = 0; c < cols; c++) {
-        const din = up * .6 + noise(c, r) * .4;
-        const dout = down * .6 + noise(c + 31, r + 7) * .4;
-        if (a > din && b <= dout) pctx.fillRect(c * cs, r * cs, cs + .5, cs + .5);
+        if (a > up * .6 + noise(c, r) * .4) pctx.fillRect(c * cs, r * cs, cs + .5, cs + .5);
       }
     }
   }
@@ -878,8 +883,9 @@ const BASE = window.SITE_BASE || '';
           // открываем после 3% экрана, а собираем только у самого верха: иначе дрожание пальца у порога заставляло заголовок мигать
           const d = s.progress * (s.end - s.start);
           const on = opened ? d > 2 : d > vh() * 0.03;
-          // назад заголовок сразу собирается целиком, без обратной анимации
-          if (on !== opened) { opened = on; on ? whenPixDone(() => opened && openTl.play()) : openTl.pause(0); }
+          if (on !== opened) { opened = on; on ? whenPixDone(() => opened && openTl.timeScale(1).play()) : openTl.timeScale(2).reverse(); }
+          // вернулись к самому началу блока движением вверх — сразу уходим назад, к «Для кого?»: иначе нужен ещё один лишний свайп
+          if (s.direction < 0 && d < vh() * 0.04) startPixels(s.trigger, -1, () => scrollY < s.start + vh() * 0.04);
         },
       },
     });
