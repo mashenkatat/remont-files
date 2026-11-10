@@ -8,6 +8,10 @@ const BASE = window.SITE_BASE || '';
   const mob = matchMedia(MOB).matches;
   // пальцем листают с инерцией, поэтому прыгать и останавливать прокрутку там нельзя
   const touch = matchMedia('(hover: none) and (pointer: coarse)').matches;
+  // только телефон (без планшета): «Что могу?» здесь — заголовок и слайдер карточек вместо сцены с рендером
+  const PHONE = '(max-width: 639px)';
+  const phone = matchMedia(PHONE).matches;
+  matchMedia(PHONE).addEventListener('change', () => location.reload());
   // сцены собираются под одну раскладку, поэтому при переходе через границу страница пересобирается
   matchMedia(MOB).addEventListener('change', () => location.reload());
   // rem берём из CSS: на десктопе это ширина/192, на телефоне свой размер
@@ -83,6 +87,24 @@ const BASE = window.SITE_BASE || '';
   }
   $$('[data-roll]').forEach(addRoll);
 
+  /* ---------- Иконки карточек услуг (телефон) ---------- */
+  // силуэт из набора Phosphor, обведён «от руки», внутри штриховка, вокруг белые чертёжные направляющие — как иконки «Для кого?»
+  if (phone) {
+    const ICONS = {"paint-roller":"M248 104v50a16.07 16.07 0 0 1-11.6 15.38L136 198v34a8 8 0 0 1-16 0v-34a16.07 16.07 0 0 1 11.6-15.38L232 154v-50h-16v24a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-24H16a8 8 0 0 1 0-16h16V64a16 16 0 0 1 16-16h152a16 16 0 0 1 16 16v24h16a16 16 0 0 1 16 16","grid-four":"M216 56v60a4 4 0 0 1-4 4h-76V44a4 4 0 0 1 4-4h60a16 16 0 0 1 16 16M116 40H56a16 16 0 0 0-16 16v60a4 4 0 0 0 4 4h76V44a4 4 0 0 0-4-4m96 96h-76v76a4 4 0 0 0 4 4h60a16 16 0 0 0 16-16v-60a4 4 0 0 0-4-4m-172 4v60a16 16 0 0 0 16 16h60a4 4 0 0 0 4-4v-76H44a4 4 0 0 0-4 4","rows":"M224 152v40a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-40a16 16 0 0 1 16-16h160a16 16 0 0 1 16 16M208 48H48a16 16 0 0 0-16 16v40a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V64a16 16 0 0 0-16-16","lightning":"m213.85 125.46l-112 120a8 8 0 0 1-13.69-7l14.66-73.33l-57.63-21.64a8 8 0 0 1-3-13l112-120a8 8 0 0 1 13.69 7l-14.7 73.41l57.63 21.61a8 8 0 0 1 3 12.95Z","drop":"M174 47.75a254.2 254.2 0 0 0-41.45-38.3a8 8 0 0 0-9.18 0A254.2 254.2 0 0 0 82 47.75C54.51 79.32 40 112.6 40 144a88 88 0 0 0 176 0c0-31.4-14.51-64.68-42-96.25m9.85 105.59a57.6 57.6 0 0 1-46.56 46.55a9 9 0 0 1-1.29.11a8 8 0 0 1-1.32-15.89c16.57-2.79 30.63-16.85 33.44-33.45a8 8 0 0 1 15.78 2.68Z","washing-machine":"M208 32H48a16 16 0 0 0-16 16v160a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16m-80 152a56 56 0 1 1 56-56a56 56 0 0 1-56 56m60-104a12 12 0 1 1 12-12a12 12 0 0 1-12 12m-54.34 29.66l-32 32a8 8 0 0 1-11.32-11.32l32-32a8 8 0 0 1 11.32 11.32m32-3.32a8 8 0 0 1 0 11.32l-48 48a8 8 0 0 1-11.32-11.32l48-48a8 8 0 0 1 11.32 0","armchair":"M240 132a28 28 0 0 1-24 27.71V200a16 16 0 0 1-16 16H56a16 16 0 0 1-16-16v-40.29A28 28 0 1 1 72 132v36a8 8 0 0 0 16 0v-24h80v24a8 8 0 0 0 16 0v-36a28 28 0 0 1 56 0M44 88a44.06 44.06 0 0 1 43.81 40h80.38A44.06 44.06 0 0 1 212 88a4 4 0 0 0 4-4V72a40 40 0 0 0-40-40H80a40 40 0 0 0-40 40v12a4 4 0 0 0 4 4","ruler":"M235.32 96L96 235.31a16 16 0 0 1-22.63 0l-52.69-52.68a16 16 0 0 1 0-22.63l29.17-29.17a4 4 0 0 1 5.66 0l34.83 34.83a8 8 0 0 0 11.71-.43a8.18 8.18 0 0 0-.6-11.09l-34.63-34.63a4 4 0 0 1 0-5.65l15-15a4 4 0 0 1 5.66 0l34.83 34.83a8 8 0 0 0 11.71-.43a8.18 8.18 0 0 0-.6-11.09L98.83 87.51a4 4 0 0 1 0-5.65l15-15a4 4 0 0 1 5.65 0l34.83 34.83a8 8 0 0 0 11.72-.43a8.18 8.18 0 0 0-.61-11.09l-34.59-34.66a4 4 0 0 1 0-5.65L160 20.69a16 16 0 0 1 22.63 0l52.69 52.68a16 16 0 0 1 0 22.63"};
+    let seed = 0;
+    const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    $$('[data-ic]').forEach((el, n) => {
+      seed = 101 + n * 37;
+      const d = ICONS[el.dataset.ic], id = 'svc' + n, tr = 'translate(44 44) scale(.4375)';
+      let hatch = '';
+      for (let x = -260; x < 260; x += 7) {
+        const j = () => (rnd() - .5) * 3;
+        hatch += `<line x1="${x + j()}" y1="${256 + j()}" x2="${x + 256 + j()}" y2="${j()}" stroke-width="${(1.6 + rnd() * 1.4).toFixed(2)}" stroke-opacity="${(.55 + rnd() * .45).toFixed(2)}"/>`;
+      }
+      const marks = [[100, 16], [100, 184], [16, 100], [184, 100]].map(([x, y]) => `<rect x="${x - 3}" y="${y - .5}" width="6" height="1"/><rect x="${x - .5}" y="${y - 3}" width="1" height="6"/>`).join('');
+      el.innerHTML = `<svg viewBox="0 0 200 200" aria-hidden="true"><g fill="none" stroke="#fcfbfb" stroke-opacity=".4" stroke-width="1" stroke-dasharray="4 4"><circle cx="100" cy="100" r="84"/><line x1="100" y1="0" x2="100" y2="200"/><line x1="0" y1="100" x2="200" y2="100"/></g><g fill="#fcfbfb" fill-opacity=".7">${marks}</g><defs><clipPath id="${id}"><path transform="${tr}" d="${d}"/></clipPath><filter id="w${id}" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="1" seed="${n + 3}"/><feDisplacementMap in="SourceGraphic" scale="2.2"/></filter></defs><g filter="url(#w${id})"><path transform="${tr}" d="${d}" fill="#ff4e1d" fill-opacity=".16"/><g clip-path="url(#${id})"><g transform="${tr}" stroke="#ff4e1d">${hatch}</g></g><path transform="${tr}" d="${d}" fill="none" stroke="#ff4e1d" stroke-width="7" stroke-linejoin="round"/><path transform="translate(45.5 42.8) scale(.4375)" d="${d}" fill="none" stroke="#ff4e1d" stroke-opacity=".45" stroke-width="3"/></g></svg>`;
+    });
+  }
   /* ---------- Подсказки на рендере (координаты из макета) ---------- */
   const TIPS = [
     [5212, 7324, 'Производство корпусной мебели на заказ по индивидуальным размерам'],
@@ -471,7 +493,7 @@ const BASE = window.SITE_BASE || '';
   const themed = $$('[data-theme]').filter(el => el !== document.body);
   // после карточек «Для кого?» ещё ~3 шага стоят на экране, прежде чем начнётся переход
   // на телефоне после «Для кого?» хвост короче: карточки едут по таймеру, длинная пауза за ними не нужна
-  const HERO_LEN = mob ? 14.4 : 16.6, WHO_AT = 11.6;
+  const HERO_LEN = 14.4, WHO_AT = 11.6;
   let heroST, servicesST, footerVisible = false;
   function updateTheme() {
     const mid = vh() / 2;
@@ -842,7 +864,7 @@ const BASE = window.SITE_BASE || '';
       defaults: { ease: 'none' },
       onUpdate: () => { want = Math.round(clamp(tl.progress() * HERO_LEN / VIDEO_END, 0, 1) * (FRAMES - 1)); drawFrame(); },
       scrollTrigger: {
-        trigger: '.hero', start: 'top top', end: () => '+=' + vh() * (mob ? 6.35 : 7.6), pin: true, scrub: .4,
+        trigger: '.hero', start: 'top top', end: () => '+=' + vh() * (mob ? 6.35 : 6.6), pin: true, scrub: .4,
         onUpdate: s => { runPhases(s.progress * HERO_LEN); mob && cardsPhase(s.progress * HERO_LEN); },
       },
     });
@@ -854,6 +876,7 @@ const BASE = window.SITE_BASE || '';
     heroST = tl.scrollTrigger;
     document.documentElement.classList.add('is-ready');
 
+    if (!phone) {
     // «Что могу?»: слова въезжают, при первом движении колеса расходятся, внутри строками встаёт описание
     gsap.set('.big__in', { yPercent: 150, rotate: 2 });
     ScrollTrigger.create({
@@ -874,11 +897,12 @@ const BASE = window.SITE_BASE || '';
     strip = $('.strip');
     const dist = () => strip.scrollWidth - innerWidth;
     // после того как слова разъехались, рендер начинает выезжать со следующим движением, и в конце нет пустого шага
-    const HOLD = mob ? 1.2 : 1.35, FIN = .6, PAN = mob ? 1.2 : 1.25;
+    // REST — пауза после готового рендера, чтобы его успели рассмотреть до перехода к кейсам
+    const HOLD = mob ? 1.2 : 1.35, FIN = .6, REST = 1, PAN = mob ? 1.2 : 1.25;
     const st = gsap.timeline({
       defaults: { ease: 'none' },
       scrollTrigger: {
-        trigger: '.services', start: 'top top', end: () => '+=' + (vh() * (HOLD + FIN) + dist() * PAN), pin: true, scrub: .6, invalidateOnRefresh: true, onRefresh: measureRender,
+        trigger: '.services', start: 'top top', end: () => '+=' + (vh() * (HOLD + FIN + REST) + dist() * PAN), pin: true, scrub: .6, invalidateOnRefresh: true, onRefresh: measureRender,
         onUpdate: s => {
           // открываем после 3% экрана, а собираем только у самого верха: иначе дрожание пальца у порога заставляло заголовок мигать
           const d = s.progress * (s.end - s.start);
@@ -891,8 +915,26 @@ const BASE = window.SITE_BASE || '';
     });
     st.to({}, { duration: HOLD }, 0)
       .to(strip, { x: () => -dist(), duration: () => dist() / vh() * PAN }, HOLD)
-      .to(fin, { f: 1, duration: FIN });
+      .to(fin, { f: 1, duration: FIN })
+      .to({}, { duration: REST });
     servicesST = st.scrollTrigger;
+    } else {
+      // телефон: вместо сцены с рендером обычный блок — заголовок, подзаголовок и слайдер карточек услуг
+      reveal(splitChars(splitLines($('.svc__title'))), '.services', 'top 60%');
+      const svcText = $$('.svc__kicker, .svc__lead');
+      const svcCards = $$('.svc-card');
+      gsap.set(svcText, { y: 24, opacity: 0 });
+      gsap.set(svcCards, { x: 60, opacity: 0 });
+      ScrollTrigger.create({
+        trigger: '.services', start: 'top 60%', end: 'max',
+        onEnter: () => {
+          const now = underPix();
+          gsap.to(svcText, { y: 0, opacity: 1, duration: now ? 0 : .7, stagger: now ? 0 : .08, ease: out, overwrite: true });
+          gsap.to(svcCards, { x: 0, opacity: 1, duration: now ? 0 : .8, stagger: now ? 0 : .08, delay: now ? 0 : .25, ease: out, overwrite: true });
+        },
+        onLeaveBack: () => { gsap.set(svcText, { y: 24, opacity: 0, overwrite: true }); gsap.set(svcCards, { x: 60, opacity: 0, overwrite: true }); },
+      });
+    }
 
     // кейсы лесенкой уходят вверх по диагонали; на телефоне они друг под другом, и сдвиг их бы склеил
     if (!mob) $$('.case').forEach((c, i) => {
@@ -928,7 +970,7 @@ const BASE = window.SITE_BASE || '';
       // блок встаёт на экран, и переписку листает прокрутка страницы, где бы ни был курсор; после последнего сообщения едем к футеру
       const feedMax = () => Math.max(0, feed.scrollHeight - feed.clientHeight);
       ScrollTrigger.create({
-        trigger: '.reviews', start: 'top top', end: () => '+=' + (feedMax() + vh() * 0.25), pin: true, invalidateOnRefresh: true,
+        trigger: '.reviews', start: 'top top', end: () => '+=' + (feedMax() + vh() * 0.9), pin: true, invalidateOnRefresh: true,
         onUpdate: s => { feed.scrollTop = clamp(s.scroll() - s.start - vh() * 0.05, 0, feedMax()); },
       });
       $$('.msg__photo').forEach(img => img.complete || img.addEventListener('load', () => ScrollTrigger.refresh(), { once: true }));
@@ -945,8 +987,8 @@ const BASE = window.SITE_BASE || '';
 
     // заливка стартует, как только край блока показался снизу, чтобы кусок блока не мелькал до пикселей
     pixelSections.forEach(sec => {
-      // на телефоне и планшете переход начинается чуть раньше, чем край следующего блока покажется снизу
-      ScrollTrigger.create({ trigger: sec, start: () => touch ? 'top bottom+=' + Math.round(vh() * .2) : 'top bottom-=2', onEnter: self => startPixels(sec, 1, () => scrollY >= self.start) });
+      // на телефоне и планшете переход начинается, когда край следующего блока показался снизу на 20% экрана
+      ScrollTrigger.create({ trigger: sec, start: () => touch ? 'top bottom-=' + Math.round(vh() * .2) : 'top bottom-=2', onEnter: self => startPixels(sec, 1, () => scrollY >= self.start) });
       // точку считаем числом от верха блока: у закреплённого блока запись 'top top' ScrollTrigger переносит за конец его сцены
       ScrollTrigger.create({ start: () => {
         const box = sec.parentElement.classList.contains('pin-spacer') ? sec.parentElement : sec;
