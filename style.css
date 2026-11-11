@@ -777,6 +777,8 @@ html:not(.is-ready) :is(.hero__intro, .fact, .who__title, .who__guides, .card, .
 /* «Что могу?» на телефоне: заголовок и слайдер тёмных карточек вместо сцены с рендером */
 .svc { display: none; }
 @media (max-width: 639px) {
+  /* подложка первого экрана тоже из облегчённого набора */
+  .hero__stage { background-image: url('assets/кадры-м/0001.webp'); }
   .services__stage { display: none; }
   .svc { display: flex; flex-direction: column; min-height: 100svh; padding: calc(max(10vh, 11rem) - 1.8rem - var(--gap-l)) 0 calc(3.2rem + var(--vb)); }
   .svc__label { padding: 0 var(--pad); font: 500 1.4rem/1.8rem 'Feature Mono', monospace; text-transform: uppercase; color: var(--dark); }
@@ -808,6 +810,14 @@ html:not(.is-ready) :is(.hero__intro, .fact, .who__title, .who__guides, .card, .
 }
 @keyframes hint-bob { 0%, 100% { transform: translateY(-.2rem); } 50% { transform: translateY(.5rem); } }
 @media (prefers-reduced-motion: reduce) { .hint__a { animation: none; } }
+
+/* на телефоне и планшете размытие за стеклом и лишняя плотность пикселей заметно тормозят прокрутку */
+@media (max-width: 1024px) {
+  body[data-glass="1"] { --ui-blur: none; }
+  .header::before, .nav__msg .sq, #entry-skip { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .header::before { background: rgba(32, 25, 17, .72); }
+  .nav__msg .sq { background: rgba(70, 58, 44, .92); }
+}
 
 /* в подвале фон оранжевый: вторая строка логотипа белая, иначе сливается */
 body[data-theme="orange"] .logo span:last-child { color: var(--white); }

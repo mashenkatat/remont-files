@@ -314,6 +314,9 @@ const BASE = window.SITE_BASE || '';
 
   /* ---------- Покадровое видео первого экрана ---------- */
   const FRAMES = window.HERO_FRAMES || 361;
+  // на телефоне в портрете берём облегчённый набор кадров: он заранее обрезан по вертикали под узкий экран,
+  // поэтому распаковывается втрое быстрее и при этом не мылит, как уменьшенный широкий кадр
+  const FRAME_DIR = phone && innerHeight > innerWidth ? 'кадры-м' : 'кадры';
   const canvas = $('.hero__video');
   const ctx = canvas.getContext('2d');
   const frames = new Array(FRAMES);
@@ -359,11 +362,13 @@ const BASE = window.SITE_BASE || '';
     const i = order[cursorLoad++];
     const img = new Image();
     img.decoding = 'async';
+    // кадры первой волны нужны прелоудеру прямо сейчас, остальные идут в обычную очередь
+    if (i % 48 === 0) img.fetchPriority = 'high';
     img.onload = () => { frames[i] = img; if (i % 48 === 0) { keyLoaded++; report(); } if (Math.abs(i - want) < 30) { drawn = -1; drawFrame(); } loadNext(); };
     img.onerror = loadNext;
-    img.src = `${BASE}assets/кадры/${String(i + 1).padStart(4, '0')}.webp`;
+    img.src = `${BASE}assets/${FRAME_DIR}/${String(i + 1).padStart(4, '0')}.webp`;
   }
-  for (let k = 0; k < 6; k++) loadNext();
+  for (let k = 0; k < 10; k++) loadNext();
   sizeCanvas();
   addEventListener('resize', sizeCanvas);
 
@@ -373,7 +378,8 @@ const BASE = window.SITE_BASE || '';
   const pixelSections = $$('[data-pixel]');
   const noise = (c, r) => { const s = Math.sin(c * 127.1 + r * 311.7) * 43758.5453; return s - Math.floor(s); };
   function sizePixels() {
-    const dpr = Math.min(devicePixelRatio || 1, 2);
+    // на таче клетки заливки крупные, поэтому хватает одного пикселя на точку: заливка в 4 раза легче
+    const dpr = touch ? 1 : Math.min(devicePixelRatio || 1, 2);
     pix.width = Math.round(innerWidth * dpr);
     pix.height = Math.round(innerHeight * dpr);
     pctx.setTransform(dpr, 0, 0, dpr, 0, 0);

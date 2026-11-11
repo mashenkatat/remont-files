@@ -3,14 +3,17 @@
   const entry = document.querySelector('#entry');
   let done;
   window.entryDone = new Promise(r => { done = r; });
-  // прелоудер показывается один раз на вкладку: при повторном открытии или перезагрузке сайт открывается сразу
-  if (entry.hidden || sessionStorage.getItem('entered')) {
+  // прелоудер показывается один раз в 12 часов: перезагрузка и повторный заход открывают сайт сразу
+  const SEEN = 'entered-at', FRESH = 12 * 3600e3;
+  let seenAt = 0;
+  try { seenAt = +localStorage.getItem(SEEN) || 0; } catch (e) {}
+  if (entry.hidden || Date.now() - seenAt < FRESH) {
     entry.hidden = true;
     document.documentElement.classList.remove('entering');
     done();
     return;
   }
-  sessionStorage.setItem('entered', '1');
+  try { localStorage.setItem(SEEN, Date.now()); } catch (e) {}
   const film = entry.querySelector('video');
   const caption = entry.querySelector('.entry-caption');
   const line = caption.querySelector('.entry-line');
@@ -18,7 +21,7 @@
   const ease = 'cubic-bezier(.32, 0, .12, 1)';
   let frame, exitStarted, current = '', busy = null;
   // запасной выход, если сеть совсем плохая: прелоудер ждёт готовности первого экрана, но не дольше 15 секунд
-  const deadline = setTimeout(finish, 15000);
+  const deadline = setTimeout(finish, 9000);
   let watched = false;
   const chars = t => [...t].map(c => `<span class="ch">${c === ' ' ? '&nbsp;' : c}</span>`).join('');
   // старая подпись уходит вверх по буквам, новая въезжает снизу — как тексты на первом экране
@@ -52,8 +55,8 @@
     entry.classList.toggle('is-wait', watched && !exitStarted);
     // сайт готов, когда загружены первые кадры и шрифты и главный скрипт расставил первый экран (html.is-ready)
     const load = Math.min(window.siteLoad || 0, document.documentElement.classList.contains('is-ready') ? 1 : .95);
-    // если загрузка отстаёт, видео замедляется, а не замирает на глазке
-    const rate = seen > load + .08 ? .35 : 1;
+    // если загрузка отстаёт, видео чуть замедляется, но не ползёт: ниже .75 скорость не опускаем
+    const rate = seen > load + .08 ? .75 : 1;
     if (film.playbackRate !== rate) film.playbackRate = rate;
     const progress = Math.min(watched ? 1 : seen, load);
     const percent = Math.floor(progress * 100);
