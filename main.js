@@ -416,7 +416,7 @@ const BASE = window.SITE_BASE || '';
   const pxlog = m => window.__pxlog && window.__pxlog.push(Math.round(performance.now()) + ' ' + m);
   function startPixels(sec, dir = 1, valid) {
     if (navigating || reduced || !popup.hidden) return;
-    if (pixRun || pixHold) { pxlog('skip ' + sec.className + dir); return; }
+    if (pixRun || pixHold) { pxlog('skip ' + sec.className + dir + ' y=' + Math.round(scrollY)); return; }
     const wait = touch ? 500 - (performance.now() - pixEnd) : 0;
     // сразу после перехода без нового касания запрос даёт только хвост инерции: возвращаем страницу на место вместо второго перехода
     if (touch && performance.now() - pixEnd < 900 && lastTouch < pixEnd) {
@@ -499,7 +499,9 @@ const BASE = window.SITE_BASE || '';
   const themed = $$('[data-theme]').filter(el => el !== document.body);
   // после карточек «Для кого?» ещё ~3 шага стоят на экране, прежде чем начнётся переход
   // на телефоне после «Для кого?» хвост короче: карточки едут по таймеру, длинная пауза за ними не нужна
-  const HERO_LEN = 14.4, WHO_AT = 11.6;
+  // на таче в конце сцены добавлен пустой хвост (2.3 условных шага ≈ один экран): карточки «Для кого?»
+  // стоят на месте ещё одну прокрутку, и переход к услугам включается не сразу
+  const HERO_LEN = touch ? 16.7 : 14.4, WHO_AT = 11.6;
   let heroST, servicesST, footerVisible = false;
   function updateTheme() {
     const mid = vh() / 2;
@@ -870,7 +872,7 @@ const BASE = window.SITE_BASE || '';
       defaults: { ease: 'none' },
       onUpdate: () => { want = Math.round(clamp(tl.progress() * HERO_LEN / VIDEO_END, 0, 1) * (FRAMES - 1)); drawFrame(); },
       scrollTrigger: {
-        trigger: '.hero', start: 'top top', end: () => '+=' + vh() * (mob ? 6.35 : 6.6), pin: true, scrub: .4,
+        trigger: '.hero', start: 'top top', end: () => '+=' + vh() * (mob ? 7.36 : 6.6), pin: true, scrub: .4,
         onUpdate: s => { runPhases(s.progress * HERO_LEN); mob && cardsPhase(s.progress * HERO_LEN); },
       },
     });
@@ -990,6 +992,11 @@ const BASE = window.SITE_BASE || '';
       onEnter: () => { footerVisible = true; cta.classList.add('is-gone'); head.classList.add('is-gone'); if (head.classList.contains('is-big')) closeHead(); },
       onLeaveBack: () => { footerVisible = false; cta.classList.remove('is-gone'); head.classList.remove('is-gone'); },
     });
+
+    // на таче блок стоит на месте ещё один экран прокрутки: так переход включается не сразу,
+    // и при листании назад тоже есть запас хода. Пустых отступов при этом не появляется
+    if (phone) ScrollTrigger.create({ trigger: '.services', start: 'top top', end: () => '+=' + vh(), pin: true });
+    if (touch) ScrollTrigger.create({ trigger: '.footer', start: 'top top', end: () => '+=' + vh(), pin: true });
 
     // заливка стартует, как только край блока показался снизу, чтобы кусок блока не мелькал до пикселей
     pixelSections.forEach(sec => {

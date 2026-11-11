@@ -777,18 +777,15 @@ html:not(.is-ready) :is(.hero__intro, .fact, .who__title, .who__guides, .card, .
 /* «Что могу?» на телефоне: заголовок и слайдер тёмных карточек вместо сцены с рендером */
 .svc { display: none; }
 @media (max-width: 639px) {
-  /* на телефоне высоту задаёт сам блок .svc, а не фиксированные 100vh сцены с рендером */
-  .services { height: auto; }
   .services__stage { display: none; }
-  /* блок выше экрана: после слайдера остаётся ещё экран прокрутки перед кейсами */
-  .svc { display: flex; flex-direction: column; min-height: 175svh; padding: calc(max(10vh, 11rem) - 1.8rem - var(--gap-l)) 0 calc(3.2rem + var(--vb)); }
+  .svc { display: flex; flex-direction: column; min-height: 100svh; padding: calc(max(10vh, 11rem) - 1.8rem - var(--gap-l)) 0 calc(3.2rem + var(--vb)); }
   .svc__label { padding: 0 var(--pad); font: 500 1.4rem/1.8rem 'Feature Mono', monospace; text-transform: uppercase; color: var(--dark); }
   .svc__title { padding: 0 var(--pad); margin-top: var(--gap-l); font-weight: 600; font-size: 4.4rem; line-height: 1; text-transform: uppercase; }
   .svc__kicker { padding: 0 var(--pad); margin-top: 2.4rem; width: 28rem; font: 400 1.4rem/1.2 'JetBrains Mono', monospace; text-transform: uppercase; }
   .svc__lead { padding: 0 var(--pad); margin-top: 1.2rem; font-weight: 700; font-size: 2.2rem; line-height: 1.05; text-transform: uppercase; }
   /* слайдер листается только по горизонтали: overflow-y: hidden убирает вертикальное подрагивание;
      отступы сверху и снизу нужны, чтобы точки по углам карточек не обрезались краем слайдера */
-  .svc__rail { flex: 0 0 auto; display: flex; align-items: stretch; gap: 1.2rem; margin-top: 3.2rem; min-height: max(34rem, 40svh); padding: .6rem 0; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding: 0 var(--pad); scrollbar-width: none; }
+  .svc__rail { flex: 1; display: flex; align-items: stretch; gap: 1.2rem; margin-top: 3.2rem; min-height: max(34rem, 40svh); padding: .6rem 0; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding: 0 var(--pad); scrollbar-width: none; }
   .svc__rail::-webkit-scrollbar { display: none; }
   .svc__rail::before, .svc__rail::after { content: ''; flex: 0 0 calc(var(--pad) - 1.2rem); }
   /* те же карточки, что в «Для кого?»: тёмный фон, оранжевая обводка-градиент, точки по углам */
