@@ -474,7 +474,7 @@ body[data-theme="orange"] { --ink: var(--white); }
   .label--services { left: var(--pad); top: calc(max(10vh, 11rem) - 1.8rem - var(--gap-l)); bottom: auto; }
 
   /* «Для кого?»: заголовок и три карточки столбиком, делят высоту экрана поровну */
-  .who { display: flex; flex-direction: column; gap: 1.2rem; padding: calc(9.6rem + 1.8rem + var(--gap-l)) var(--pad) calc(2.4rem + var(--vb)); }
+  .who { display: flex; flex-direction: column; gap: 1.2rem; padding: calc(9.6rem + 1.8rem + var(--gap-l)) var(--pad) var(--vb); }
   .who__guides { position: absolute; inset: 0; }
   .who__guides i { display: none; }
   .who__guides i:first-child, .who__guides i:last-child { display: block; }
@@ -504,7 +504,7 @@ body[data-theme="orange"] { --ink: var(--white); }
 
   /* Кейсы: столбиком во всю ширину, сверху подпись и подсказка */
   /* фото до появления увеличены, а свечение шире экрана: без обрезки страница становилась шире телефона и браузер её уменьшал */
-  .cases { height: auto; padding: 9.6rem var(--pad) 6.4rem; overflow-x: clip; }
+  .cases { height: auto; padding: 7.2rem var(--pad) 0; overflow-x: clip; }
   .cases__glow { left: 50%; top: 20%; width: 120vw; height: 60%; margin-left: -60vw; }
   .label--cases { position: relative; left: auto; top: auto; display: block; margin-bottom: 40px; }
   .cases__list { position: relative; inset: auto; display: flex; flex-direction: column; gap: 1.6rem; }
@@ -536,7 +536,7 @@ body[data-theme="orange"] { --ink: var(--white); }
 
   /* Отзывы: окно чата как на телефоне, без боковой панели и рамки окна */
   /* подпись, заголовок и чат столбиком: чат забирает всю оставшуюся высоту */
-  .reviews__stage { display: flex; flex-direction: column; padding: 6.4rem var(--pad) calc(2.4rem + var(--vb)); }
+  .reviews__stage { display: flex; flex-direction: column; padding: 7.2rem var(--pad) calc(7.2rem + var(--vb)); }
   .label--reviews { position: relative; left: auto; top: auto; bottom: auto; order: -1; margin-bottom: var(--gap-l); }
   .reviews__top { position: relative; left: auto; right: auto; top: auto; display: block; }
   .reviews__title { font-size: 3.2rem; }
@@ -567,7 +567,7 @@ body[data-theme="orange"] { --ink: var(--white); }
   .chat__send { width: var(--btn); height: var(--btn); }
 
   /* Футер: всё столбиком, Никита стоит на нижнем краю */
-  .footer { height: auto; min-height: 0; display: flex; flex-direction: column; padding: 10.4rem var(--pad) 0; }
+  .footer { height: auto; min-height: 0; display: flex; flex-direction: column; padding: 7.2rem var(--pad) 0; }
   /* договор и ссылки лежат поверх Никиты, низ затемнён, чтобы текст читался */
   .footer::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 32rem; z-index: 1; pointer-events: none; background: linear-gradient(to top, rgba(32, 25, 17, .7), rgba(32, 25, 17, .35) 45%, rgba(32, 25, 17, 0)); }
   .footer__title { position: relative; left: auto; top: auto; order: 1; width: auto; font-size: 3.2rem; }
@@ -780,7 +780,7 @@ html:not(.is-ready) :is(.hero__intro, .fact, .who__title, .who__guides, .card, .
   /* подложка первого экрана тоже из облегчённого набора */
   .hero__stage { background-image: url('assets/кадры-м/0001.webp'); }
   .services__stage { display: none; }
-  .svc { display: flex; flex-direction: column; min-height: 100svh; padding: calc(max(10vh, 11rem) - 1.8rem - var(--gap-l)) 0 calc(3.2rem + var(--vb)); }
+  .svc { display: flex; flex-direction: column; min-height: 100svh; padding: 7.2rem 0 calc(7.2rem + var(--vb)); }
   .svc__label { padding: 0 var(--pad); font: 500 1.4rem/1.8rem 'Feature Mono', monospace; text-transform: uppercase; color: var(--dark); }
   .svc__title { padding: 0 var(--pad); margin-top: var(--gap-l); font-weight: 600; font-size: 4.4rem; line-height: 1; text-transform: uppercase; }
   .svc__kicker { padding: 0 var(--pad); margin-top: 2.4rem; width: 28rem; font: 400 1.4rem/1.2 'JetBrains Mono', monospace; text-transform: uppercase; }
@@ -802,11 +802,11 @@ html:not(.is-ready) :is(.hero__intro, .fact, .who__title, .who__guides, .card, .
 /* подсказка «листай вниз» в первом экране: только на тач-устройствах, пропадает после первого движения вниз */
 .hint { display: none; }
 @media (max-width: 1024px) {
-  .hint { position: absolute; left: 50%; bottom: calc(8.8rem + var(--vb)); z-index: 6; display: flex; flex-direction: column; align-items: center; gap: .6rem; transform: translateX(-50%); color: var(--white); opacity: .75; transition: opacity .45s var(--ease-out), transform .45s var(--ease-out); pointer-events: none; }
+  html.is-touch .hint { position: absolute; left: 50%; bottom: calc(8.8rem + var(--vb)); z-index: 6; display: flex; flex-direction: column; align-items: center; gap: .6rem; transform: translateX(-50%); color: var(--white); opacity: .75; transition: opacity .45s var(--ease-out), transform .45s var(--ease-out); pointer-events: none; }
   .hint__t { font: 500 1.2rem/1 'Feature Mono', monospace; text-transform: uppercase; letter-spacing: .08em; }
   .hint__a { display: block; animation: hint-bob 1.9s var(--ease) infinite; }
   .hint__a .ico { width: 1.8rem; height: 1.8rem; transform: rotate(180deg); }
-  .hint.is-gone { opacity: 0; transform: translate(-50%, 1.2rem); }
+  html.is-touch .hint.is-gone { opacity: 0; transform: translate(-50%, 1.2rem); }
 }
 @keyframes hint-bob { 0%, 100% { transform: translateY(-.2rem); } 50% { transform: translateY(.5rem); } }
 @media (prefers-reduced-motion: reduce) { .hint__a { animation: none; } }
@@ -821,3 +821,16 @@ html:not(.is-ready) :is(.hero__intro, .fact, .who__title, .who__guides, .card, .
 
 /* в подвале фон оранжевый: вторая строка логотипа белая, иначе сливается */
 body[data-theme="orange"] .logo span:last-child { color: var(--white); }
+
+/* Телефон и планшет: «Для кого?» — отдельный блок после первого экрана, проезжает без фиксации */
+@media (max-width: 1023px) {
+  .who-sec {
+    position: relative; z-index: 2; background-color: var(--dark); color: var(--white); --gl: rgba(203, 203, 203, .055);
+    /* сетка повторяющимся градиентом, а не плитками: размер плитки браузер округляет до целых пикселей,
+       и к правому краю линии сетки уезжали от пунктира */
+    background-image: repeating-linear-gradient(to right, var(--gl) 0 1px, transparent 1px var(--cell)), repeating-linear-gradient(to bottom, var(--gl) 0 1px, transparent 1px var(--cell));
+  }
+  .who { position: relative; inset: auto; height: auto; padding: 7.2rem var(--pad); pointer-events: auto; }
+  .who__label { position: relative; left: auto; top: auto; bottom: auto; margin-bottom: calc(var(--gap-l) - 1.2rem); }
+  .who .card { flex: none; height: 18rem; max-height: none; }
+}

@@ -8,12 +8,26 @@ const BASE = window.SITE_BASE || '';
   const mob = matchMedia(MOB).matches;
   // пальцем листают с инерцией, поэтому прыгать и останавливать прокрутку там нельзя
   const touch = matchMedia('(hover: none) and (pointer: coarse)').matches;
+  // подсказка «листай вниз» нужна только там, где листают пальцем, а не в узком окне на компьютере
+  if (touch) document.documentElement.classList.add('is-touch');
   // только телефон (без планшета): «Что могу?» здесь — заголовок и слайдер карточек вместо сцены с рендером
   const PHONE = '(max-width: 639px)';
   const phone = matchMedia(PHONE).matches;
   matchMedia(PHONE).addEventListener('change', () => location.reload());
   // сцены собираются под одну раскладку, поэтому при переходе через границу страница пересобирается
   matchMedia(MOB).addEventListener('change', () => location.reload());
+  // на телефоне и планшете «Для кого?» — обычный блок после первого экрана: он не стоит на месте, а проезжает, как остальные
+  if (mob) {
+    const who = $('.who'), sec = document.createElement('section');
+    sec.className = 'who-sec';
+    sec.dataset.theme = 'dark';
+    const lab = document.createElement('p');
+    lab.className = 'label who__label';
+    lab.append($('[data-label="2"]').parentElement);
+    who.insertBefore(lab, $('.who__title', who));
+    $('.hero').after(sec);
+    sec.append(who);
+  }
   // rem берём из CSS: на десктопе это ширина/192, на телефоне свой размер
   let remPx = 0;
   const readRem = () => { remPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || innerWidth / 192; };
@@ -72,7 +86,7 @@ const BASE = window.SITE_BASE || '';
 
   // Подписи в квадратных скобках: текст белый, скобки оранжевые
   const brackets = t => t.replace(/^\s*\[(.*)\]\s*$/, '<span class="br">[</span>$1<span class="br">]</span>');
-  $$('.label:not(.label--hero), [data-label]').forEach(el => { el.innerHTML = brackets(el.textContent); });
+  $$('.label:not(.label--hero):not(.who__label), [data-label]').forEach(el => { el.innerHTML = brackets(el.textContent); });
 
   // Подпись, которая при наведении прокручивается вверх и подменяется такой же снизу
   function addRoll(el) {
@@ -505,9 +519,9 @@ const BASE = window.SITE_BASE || '';
   const themed = $$('[data-theme]').filter(el => el !== document.body);
   // после карточек «Для кого?» ещё ~3 шага стоят на экране, прежде чем начнётся переход
   // на телефоне после «Для кого?» хвост короче: карточки едут по таймеру, длинная пауза за ними не нужна
-  // на таче в конце сцены добавлен пустой хвост (2.3 условных шага ≈ один экран): карточки «Для кого?»
-  // стоят на месте ещё одну прокрутку, и переход к услугам включается не сразу
-  const HERO_LEN = touch ? 16.7 : 14.4, WHO_AT = 11.6;
+  const HERO_LEN = 14.4, WHO_AT = 11.6;
+  // на телефоне и планшете «Для кого?» вынесен из первого экрана, поэтому сцена кончается вместе с роликом
+  const SCENE_LEN = mob ? 11.7 : HERO_LEN;
   let heroST, servicesST, footerVisible = false;
   function updateTheme() {
     const mid = vh() / 2;
@@ -515,7 +529,7 @@ const BASE = window.SITE_BASE || '';
       const r = el.getBoundingClientRect();
       if (r.top <= mid && r.bottom > mid) {
         let th = el.dataset.theme;
-        if (el.classList.contains('hero') && heroST && heroST.progress > WHO_AT / HERO_LEN) th = 'dark';
+        if (!mob && el.classList.contains('hero') && heroST && heroST.progress > WHO_AT / HERO_LEN) th = 'dark';
         if (document.body.dataset.theme !== th) document.body.dataset.theme = th;
         const glass = el.matches('.cases, .reviews') ? '1' : '0';
         if (document.body.dataset.glass !== glass) document.body.dataset.glass = glass;
@@ -843,12 +857,10 @@ const BASE = window.SITE_BASE || '';
     phase(intro, -1, 1.1);
     phase([label1], 2.1, mob ? WHO_AT - .1 : 99);
     facts.forEach((lines, k) => phase(lines, 2.4 + k * 3.1, 2.4 + k * 3.1 + 2.4));
-    if (mob) phase([label2], WHO_AT + .3, 99);
-    phase(whoTitle, WHO_AT + .3, 99);
+    if (!mob) phase(whoTitle, WHO_AT + .3, 99);
     let ready = false, lastP = 0;
     // на телефоне карточки едут по своему времени, а не за пальцем: после сильного броска они не пролетают молнией
     let cardsOn = false;
-    if (mob) gsap.set('.card', { y: () => vh() });
     function cardsPhase(p) {
       const want = p >= WHO_AT + .4;
       if (want === cardsOn) return;
@@ -872,22 +884,36 @@ const BASE = window.SITE_BASE || '';
       }
     }
     // первый текст проявляется поверх уже показанной фотографии, когда закрылся глазок
-    entryDone.then(() => setTimeout(() => { ready = true; runPhases(heroST ? heroST.progress * HERO_LEN : 0); }, 250));
+    entryDone.then(() => setTimeout(() => { ready = true; runPhases(heroST ? heroST.progress * SCENE_LEN : 0); }, 250));
 
     const tl = gsap.timeline({
       defaults: { ease: 'none' },
-      onUpdate: () => { want = Math.round(clamp(tl.progress() * HERO_LEN / VIDEO_END, 0, 1) * (FRAMES - 1)); drawFrame(); },
+      onUpdate: () => { want = Math.round(clamp(tl.progress() * SCENE_LEN / VIDEO_END, 0, 1) * (FRAMES - 1)); drawFrame(); },
       scrollTrigger: {
-        trigger: '.hero', start: 'top top', end: () => '+=' + vh() * (mob ? 7.36 : 6.6), pin: true, scrub: .4,
-        onUpdate: s => { runPhases(s.progress * HERO_LEN); mob && cardsPhase(s.progress * HERO_LEN); },
+        trigger: '.hero', start: 'top top', end: () => '+=' + vh() * (mob ? 6.35 * SCENE_LEN / HERO_LEN : 6.6), pin: true, scrub: .4,
+        onUpdate: s => runPhases(s.progress * SCENE_LEN),
       },
     });
-    tl.to('.hero__dark', { opacity: .55, duration: .8 }, WHO_AT)
+    if (!mob) tl.to('.hero__dark', { opacity: .55, duration: .8 }, WHO_AT)
       .fromTo('.who__guides i', { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: .8, stagger: .05, ease: 'power2.out' }, WHO_AT + .1);
     if (!mob) tl.fromTo('.card', { y: () => vh() }, { y: 0, duration: 1.1, stagger: .2, ease: 'power3.out' }, WHO_AT + .4);
     tl
-      .to({}, { duration: .01 }, HERO_LEN - .01);
+      .to({}, { duration: .01 }, SCENE_LEN - .01);
     heroST = tl.scrollTrigger;
+    if (mob) {
+      reveal([label2], '.who-sec', 'top 75%');
+      reveal(whoTitle, '.who-sec', 'top 70%');
+      const hideCards = () => { gsap.set('.card', { y: 60, opacity: 0 }); gsap.set('.who__guides i', { clipPath: 'inset(0 0 100% 0)' }); };
+      hideCards();
+      ScrollTrigger.create({
+        trigger: '.who-sec', start: 'top 65%', end: 'max',
+        onEnter: () => {
+          gsap.to('.who__guides i', { clipPath: 'inset(0 0 0% 0)', duration: .8, stagger: .05, ease: 'power2.out' });
+          gsap.to('.card', { y: 0, opacity: 1, duration: .9, stagger: .15, ease: 'power3.out' });
+        },
+        onLeaveBack: () => { gsap.killTweensOf('.card, .who__guides i'); hideCards(); },
+      });
+    }
     document.documentElement.classList.add('is-ready');
 
     if (!phone) {
@@ -911,8 +937,9 @@ const BASE = window.SITE_BASE || '';
     strip = $('.strip');
     const dist = () => strip.scrollWidth - innerWidth;
     // после того как слова разъехались, рендер начинает выезжать со следующим движением, и в конце нет пустого шага
-    // REST — пауза после готового рендера, чтобы его успели рассмотреть до перехода к кейсам
-    const HOLD = mob ? 1.2 : 1.35, FIN = .6, REST = 1, PAN = mob ? 1.2 : 1.25;
+    // REST — пауза после готового рендера на компьютере, чтобы его успели рассмотреть до перехода к кейсам;
+    // на планшете такой пустой прокрутки быть не должно
+    const HOLD = mob ? 1.2 : 1.35, FIN = .6, REST = touch ? 0 : 1, PAN = mob ? 1.2 : 1.25;
     const st = gsap.timeline({
       defaults: { ease: 'none' },
       scrollTrigger: {
@@ -937,16 +964,20 @@ const BASE = window.SITE_BASE || '';
       reveal(splitChars(splitLines($('.svc__title'))), '.services', 'top 60%');
       const svcText = $$('.svc__kicker, .svc__lead');
       const svcCards = $$('.svc-card');
-      gsap.set(svcText, { y: 24, opacity: 0 });
-      gsap.set(svcCards, { x: 60, opacity: 0 });
+      // карточки поднимаются снизу, а не въезжают сбоку: сдвиг вбок расширял ленту,
+      // и прилипание карточек пересчитывалось прямо во время прокрутки — лента дёргалась
+      const hideSvc = () => { gsap.set(svcText, { y: 24, opacity: 0, overwrite: true }); gsap.set(svcCards, { y: 40, opacity: 0, overwrite: true }); };
+      hideSvc();
       ScrollTrigger.create({
         trigger: '.services', start: 'top 60%', end: 'max',
         onEnter: () => {
           const now = underPix();
           gsap.to(svcText, { y: 0, opacity: 1, duration: now ? 0 : .7, stagger: now ? 0 : .08, ease: out, overwrite: true });
-          gsap.to(svcCards, { x: 0, opacity: 1, duration: now ? 0 : .8, stagger: now ? 0 : .08, delay: now ? 0 : .25, ease: out, overwrite: true });
+          // видны только первые две карточки, остальные ставим сразу, чтобы не гонять анимацию за экраном
+          gsap.to(svcCards.slice(0, 2), { y: 0, opacity: 1, duration: now ? 0 : .8, stagger: now ? 0 : .1, delay: now ? 0 : .25, ease: out, overwrite: true });
+          gsap.set(svcCards.slice(2), { y: 0, opacity: 1, overwrite: true });
         },
-        onLeaveBack: () => { gsap.set(svcText, { y: 24, opacity: 0, overwrite: true }); gsap.set(svcCards, { x: 60, opacity: 0, overwrite: true }); },
+        onLeaveBack: hideSvc,
       });
     }
 
@@ -999,13 +1030,9 @@ const BASE = window.SITE_BASE || '';
       onLeaveBack: () => { footerVisible = false; cta.classList.remove('is-gone'); head.classList.remove('is-gone'); },
     });
 
-    // на таче блок стоит на месте ещё один экран прокрутки: так переход включается не сразу,
-    // и при листании назад тоже есть запас хода. Пустых отступов при этом не появляется
-    if (phone) ScrollTrigger.create({ trigger: '.services', start: 'top top', end: () => '+=' + vh(), pin: true });
-    if (touch) ScrollTrigger.create({ trigger: '.footer', start: 'top top', end: () => '+=' + vh(), pin: true });
-
-    // заливка стартует, как только край блока показался снизу, чтобы кусок блока не мелькал до пикселей
-    pixelSections.forEach(sec => {
+    // заливка клетками осталась только там, где листают мышью или трекпадом:
+    // на телефоне и планшете она отбирала прокрутку и прыгала страницей, поэтому блоки просто проезжают друг за другом
+    if (!touch) pixelSections.forEach(sec => {
       // на таче переход начинается заранее: край следующего блока ещё на 25% экрана ниже, чтобы его кусок не мелькал
       ScrollTrigger.create({ trigger: sec, start: () => touch ? 'top bottom+=' + Math.round(vh() * .25) : 'top bottom-=2', onEnter: self => startPixels(sec, 1, () => scrollY >= self.start) });
       // точку считаем числом от верха блока: у закреплённого блока запись 'top top' ScrollTrigger переносит за конец его сцены
@@ -1016,9 +1043,13 @@ const BASE = window.SITE_BASE || '';
       }, onLeaveBack: self => startPixels(sec, -1, () => scrollY < self.start) });
     });
 
-    // подсказка «листай вниз» уходит, как только человек тронул страницу
+    // подсказка «листай вниз» уходит с первым же движением страницы и больше не возвращается
     const hint = $('.hint');
-    if (hint) ScrollTrigger.create({ start: 40, onEnter: () => hint.classList.add('is-gone'), onLeaveBack: () => hint.classList.remove('is-gone') });
+    if (hint) {
+      const dropHint = () => { hint.classList.add('is-gone'); removeEventListener('scroll', dropHint); removeEventListener('touchmove', dropHint); };
+      addEventListener('scroll', dropHint, { passive: true, once: false });
+      addEventListener('touchmove', dropHint, { passive: true });
+    }
 
     ScrollTrigger.refresh();
     if (!lastWheel) startTop();
@@ -1044,7 +1075,8 @@ const BASE = window.SITE_BASE || '';
     const at = (st, k) => st.start + (st.end - st.start) * k;
     // переход по меню сразу открывает раздел: долгая прокрутка проигрывала по пути анимации всех блоков
     if (hash === '#top') return lenis.scrollTo(0, { immediate: true });
-    if (heroST && hash === '#pochemu') return lenis.scrollTo(at(heroST, 2.9 / HERO_LEN), { immediate: true });
+    if (heroST && hash === '#pochemu') return lenis.scrollTo(at(heroST, 2.9 / SCENE_LEN), { immediate: true });
+    if (mob && hash === '#dlya-kogo') return lenis.scrollTo($('.who-sec'), { immediate: true });
     if (heroST && hash === '#dlya-kogo') return lenis.scrollTo(at(heroST, (HERO_LEN - .05) / HERO_LEN), { immediate: true });
     if (servicesST && hash === '#uslugi') return lenis.scrollTo(servicesST.start + vh() * 0.1, { immediate: true });
     const el = $(hash);

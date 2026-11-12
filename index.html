@@ -10,7 +10,7 @@
 </head>
 <body data-theme="video">
 <div id="entry" hidden aria-label="Вход на сайт" data-lenis-prevent>
-  <video id="entry-film" data-src="assets/вход.mp4" data-msrc="assets/вход-м.mp4" muted playsinline preload="auto"></video>
+  <video id="entry-film" data-src="assets/вход.mp4" muted playsinline preload="auto"></video>
   <div class="entry-caption">
     <div>
       <p class="entry-brand"><span class="br">[</span>Ремонт по-соседски<span class="br">]</span></p>
@@ -20,10 +20,9 @@
   </div>
 </div>
 <script>if(!location.hash && !matchMedia('(prefers-reduced-motion: reduce)').matches){var e=document.getElementById('entry'),f=document.getElementById('entry-film');
-// на телефоне ролик прелоудера лёгкий (1 МБ вместо 3): быстрее скачивается, а на маленьком экране разницы не видно
-f.src=innerWidth<640?f.dataset.msrc:f.dataset.src;e.hidden=false;document.documentElement.classList.add('entering')}</script>
-// на телефоне ролик прелоудера лёгкий (1 МБ вместо 3): он быстрее скачивается, а разницы на маленьком экране не видно
-f.src=(window.SITE_BASE||'')+'assets/'+(innerWidth<640?'вход-м.mp4':'вход.mp4');e.hidden=false;document.documentElement.classList.add('entering')}</script>
+// на телефоне тот же ролик, что и на компьютере: лёгкий был 480 px в высоту, и на экране телефона растягивался в мыло
+f.src=f.dataset.src;e.hidden=false;document.documentElement.classList.add('entering')}</script>
+
 <div class="dim" aria-hidden="true"></div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -270,7 +269,7 @@ f.src=(window.SITE_BASE||'')+'assets/'+(innerWidth<640?'вход-м.mp4':'вхо
 <!-- Говорящая голова -->
 <div class="head" role="button" tabindex="0" aria-label="Посмотреть видео: Никита рассказывает о себе">
   <div class="head__media">
-    <img class="head__poster" src="assets/фото/никита.jpg" alt="">
+    <img class="head__poster" src="assets/фото/никита.jpg" alt="" fetchpriority="high">
     <video class="head__video" src="assets/никита.mp4" playsinline preload="metadata"></video>
   </div>
   <span class="head__play"><svg><use href="#i-play"/></svg></span>
