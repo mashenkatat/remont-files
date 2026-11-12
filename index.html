@@ -22,9 +22,19 @@
 <script>
 // старая http-версия из памяти браузера сразу уходит на https; без этого прелоудер успевал показаться и на http, и ещё раз на https
 if(location.protocol==='http:'&&/(^|\.)remont-pososedski\.ru$/.test(location.hostname)){location.replace('https://'+location.host+location.pathname+location.search+location.hash)}
-else if(!location.hash && !matchMedia('(prefers-reduced-motion: reduce)').matches){var e=document.getElementById('entry'),f=document.getElementById('entry-film');
+else if(!location.hash && !matchMedia('(prefers-reduced-motion: reduce)').matches){
+// прелоудер — один раз в 12 часов. Отметку ставим сразу при показе и в трёх местах: если браузер перезагрузит вкладку
+// (на iPhone это бывает при нехватке памяти) или не даст писать в одно хранилище, прелоудер всё равно не повторится
+var K='entered-at',H=432e5,now=Date.now(),seen=0;
+try{seen=Math.max(seen,+localStorage.getItem(K)||0)}catch(x){}
+try{seen=Math.max(seen,+sessionStorage.getItem(K)||0)}catch(x){}
+var c=document.cookie.match(/(?:^|; )entered-at=(\d+)/);if(c)seen=Math.max(seen,+c[1]);
+if(now-seen>H){
+try{localStorage.setItem(K,now)}catch(x){}try{sessionStorage.setItem(K,now)}catch(x){}
+document.cookie=K+'='+now+'; max-age=43200; path=/; SameSite=Lax';
+var e=document.getElementById('entry'),f=document.getElementById('entry-film');
 // на телефоне — вертикальная середина ролика в родном разрешении (608×1080, 270 КБ): чёткая и грузится почти сразу
-f.src=innerWidth<640?f.dataset.msrc:f.dataset.src;e.hidden=false;document.documentElement.classList.add('entering')}</script>
+f.src=innerWidth<640?f.dataset.msrc:f.dataset.src;e.hidden=false;document.documentElement.classList.add('entering')}}</script>
 
 <div class="dim" aria-hidden="true"></div>
 

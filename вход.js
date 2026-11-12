@@ -6,18 +6,14 @@
   // глазок начал раскрываться: тексты первого экрана въезжают уже сейчас, а не после того, как прелоудер исчез
   let open;
   window.entryOpen = new Promise(r => { open = r; });
-  // прелоудер показывается один раз в 12 часов: перезагрузка и повторный заход открывают сайт сразу
-  const SEEN = 'entered-at', FRESH = 12 * 3600e3;
-  let seenAt = 0;
-  try { seenAt = +localStorage.getItem(SEEN) || 0; } catch (e) {}
-  if (entry.hidden || Date.now() - seenAt < FRESH) {
+  // показывать ли прелоудер (раз в 12 часов), решает скрипт в начале страницы; здесь только смотрим, открыл ли он его
+  if (entry.hidden) {
     entry.hidden = true;
     document.documentElement.classList.remove('entering');
     open();
     done();
     return;
   }
-  try { localStorage.setItem(SEEN, Date.now()); } catch (e) {}
   const film = entry.querySelector('video');
   const caption = entry.querySelector('.entry-caption');
   const line = caption.querySelector('.entry-line');
