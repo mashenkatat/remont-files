@@ -19,7 +19,10 @@
     <output aria-hidden="true">0%</output>
   </div>
 </div>
-<script>if(!location.hash && !matchMedia('(prefers-reduced-motion: reduce)').matches){var e=document.getElementById('entry'),f=document.getElementById('entry-film');
+<script>
+// старая http-версия из памяти браузера сразу уходит на https; без этого прелоудер успевал показаться и на http, и ещё раз на https
+if(location.protocol==='http:'&&/(^|\.)remont-pososedski\.ru$/.test(location.hostname)){location.replace('https://'+location.host+location.pathname+location.search+location.hash)}
+else if(!location.hash && !matchMedia('(prefers-reduced-motion: reduce)').matches){var e=document.getElementById('entry'),f=document.getElementById('entry-film');
 // на телефоне — вертикальная середина ролика в родном разрешении (608×1080, 270 КБ): чёткая и грузится почти сразу
 f.src=innerWidth<640?f.dataset.msrc:f.dataset.src;e.hidden=false;document.documentElement.classList.add('entering')}</script>
 

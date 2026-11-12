@@ -13,9 +13,11 @@ const BASE = window.SITE_BASE || '';
   // только телефон (без планшета): «Что могу?» здесь — заголовок и слайдер карточек вместо сцены с рендером
   const PHONE = '(max-width: 639px)';
   const phone = matchMedia(PHONE).matches;
-  matchMedia(PHONE).addEventListener('change', () => location.reload());
+  // пока идёт прелоудер, не перезагружаемся: на iPhone ширина окна при загрузке может дрогнуть, и прелоудер запускался заново
+  const relayout = () => { if (!document.documentElement.classList.contains('entering')) location.reload(); };
+  matchMedia(PHONE).addEventListener('change', relayout);
   // сцены собираются под одну раскладку, поэтому при переходе через границу страница пересобирается
-  matchMedia(MOB).addEventListener('change', () => location.reload());
+  matchMedia(MOB).addEventListener('change', relayout);
   // на телефоне и планшете «Для кого?» — обычный блок после первого экрана: он не стоит на месте, а проезжает, как остальные
   if (mob) {
     const who = $('.who'), sec = document.createElement('section');
