@@ -4,7 +4,8 @@ cd "$(dirname "$0")/.." || exit 1
 F="$HOME/Claude code/Мои проекты/Болталка/инструменты/ffmpeg/ffmpeg"
 S="видео/topaz-4k.mp4"
 rm -rf /tmp/нк /tmp/нкм && mkdir -p /tmp/нк /tmp/нкм
-"$F" -hide_banner -loglevel error -y -i "$S" -vf 'crop=3848:2148:0:2,scale=1920:-2:flags=lanczos' -c:v libwebp -quality 74 -compression_level 4 /tmp/нк/%04d.webp &
+"$F" -hide_banner -loglevel error -y -i "$S" -vf 'crop=3848:2148:0:2,scale=1600:-2:flags=lanczos' -c:v libwebp -quality 60 -compression_level 4 /tmp/нк/%04d.webp &
+# компьютер 1600 px, качество 60: весь сайт должен весить меньше 50 МБ, иначе jsDelivr перестаёт отдавать файлы
 # мобильная обрезка та же, что у прежних кадров: x≈33% ширины, по вертикали весь кадр
 "$F" -hide_banner -loglevel error -y -i "$S" -vf 'crop=1289:2148:1270:2,scale=540:900:flags=lanczos' -c:v libwebp -quality 70 -compression_level 4 /tmp/нкм/%04d.webp &
 wait
