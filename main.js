@@ -884,7 +884,7 @@ const BASE = window.SITE_BASE || '';
       }
     }
     // первый текст проявляется поверх уже показанной фотографии, когда закрылся глазок
-    entryDone.then(() => setTimeout(() => { ready = true; runPhases(heroST ? heroST.progress * SCENE_LEN : 0); }, 250));
+    (window.entryOpen || entryDone).then(() => { ready = true; runPhases(heroST ? heroST.progress * SCENE_LEN : 0); });
 
     const tl = gsap.timeline({
       defaults: { ease: 'none' },

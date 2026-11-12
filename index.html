@@ -10,7 +10,7 @@
 </head>
 <body data-theme="video">
 <div id="entry" hidden aria-label="Вход на сайт" data-lenis-prevent>
-  <video id="entry-film" data-src="assets/вход.mp4" muted playsinline preload="auto"></video>
+  <video id="entry-film" data-src="assets/вход.mp4" data-msrc="assets/вход-м.mp4" muted playsinline preload="auto"></video>
   <div class="entry-caption">
     <div>
       <p class="entry-brand"><span class="br">[</span>Ремонт по-соседски<span class="br">]</span></p>
@@ -20,8 +20,8 @@
   </div>
 </div>
 <script>if(!location.hash && !matchMedia('(prefers-reduced-motion: reduce)').matches){var e=document.getElementById('entry'),f=document.getElementById('entry-film');
-// на телефоне тот же ролик, что и на компьютере: лёгкий был 480 px в высоту, и на экране телефона растягивался в мыло
-f.src=f.dataset.src;e.hidden=false;document.documentElement.classList.add('entering')}</script>
+// на телефоне — вертикальная середина ролика в родном разрешении (608×1080, 270 КБ): чёткая и грузится почти сразу
+f.src=innerWidth<640?f.dataset.msrc:f.dataset.src;e.hidden=false;document.documentElement.classList.add('entering')}</script>
 
 <div class="dim" aria-hidden="true"></div>
 

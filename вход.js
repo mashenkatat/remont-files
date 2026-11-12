@@ -3,6 +3,9 @@
   const entry = document.querySelector('#entry');
   let done;
   window.entryDone = new Promise(r => { done = r; });
+  // глазок начал раскрываться: тексты первого экрана въезжают уже сейчас, а не после того, как прелоудер исчез
+  let open;
+  window.entryOpen = new Promise(r => { open = r; });
   // прелоудер показывается один раз в 12 часов: перезагрузка и повторный заход открывают сайт сразу
   const SEEN = 'entered-at', FRESH = 12 * 3600e3;
   let seenAt = 0;
@@ -10,6 +13,7 @@
   if (entry.hidden || Date.now() - seenAt < FRESH) {
     entry.hidden = true;
     document.documentElement.classList.remove('entering');
+    open();
     done();
     return;
   }
@@ -45,6 +49,7 @@
     film.pause();
     entry.hidden = true;
     document.documentElement.classList.remove('entering');
+    open();
     done();
   }
   film.addEventListener('error', finish);
@@ -62,7 +67,7 @@
     const percent = Math.floor(progress * 100);
     counter.textContent = percent + '%';
     setLine(percent < 26 ? 'Стучимся…' : percent < 53 ? 'Ждём у двери…' : percent < 82 ? 'Слышишь шаги?' : 'Свои! Заходи.');
-    if (progress === 1 && exitStarted === undefined) exitStarted = now;
+    if (progress === 1 && exitStarted === undefined) { exitStarted = now; open(); }
     if (exitStarted) {
       const t = Math.min(1, (now - exitStarted) / 840);
       const radius = Math.hypot(innerWidth, innerHeight) * .55 * t * t;

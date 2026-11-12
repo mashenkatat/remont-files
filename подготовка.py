@@ -133,13 +133,9 @@ vendor = os.path.expanduser('~/Claude code/Рабочие проекты/Про�
 for f in ['gsap.min.js', 'ScrollTrigger.min.js', 'lenis.min.js']:
     shutil.copy(os.path.join(vendor, f), os.path.join(OUT, 'vendor', f))
 
-# кадры первого экрана для покадровой прокрутки
+# кадры первого экрана теперь собирает кадры-из-topaz.sh из улучшенного видео;
+# этот шаг оставлен выключенным, иначе он перезапишет их старым исходником
 frames_dir = os.path.join(OUT, 'кадры')
-for f in glob.glob(os.path.join(frames_dir, '*.webp')):
-    os.remove(f)
-subprocess.run([FFMPEG, '-hide_banner', '-loglevel', 'error', '-y', '-i', HERO_VIDEO,
-                '-vf', 'crop=1920:1072:2:2,scale=1600:-2', '-c:v', 'libwebp', '-quality', '72',
-                os.path.join(frames_dir, '%04d.webp')], check=True)
 count = len(glob.glob(os.path.join(frames_dir, '*.webp')))
 
 # заглушка видео Никиты, пока нет настоящего
