@@ -33,7 +33,7 @@ if(now-seen>H){
 try{localStorage.setItem(K,now)}catch(x){}try{sessionStorage.setItem(K,now)}catch(x){}
 document.cookie=K+'='+now+'; max-age=43200; path=/; SameSite=Lax';
 var e=document.getElementById('entry'),f=document.getElementById('entry-film');
-// на телефоне — вертикальная середина ролика в родном разрешении (608×1080, 270 КБ): чёткая и грузится почти сразу
+// на телефоне — вертикальная середина ролика в родном разрешении (608×1080, ~450 КБ, ровные 30 кадров/с): чёткая и грузится почти сразу
 f.src=innerWidth<640?f.dataset.msrc:f.dataset.src;e.hidden=false;document.documentElement.classList.add('entering')}}</script>
 
 <div class="dim" aria-hidden="true"></div>

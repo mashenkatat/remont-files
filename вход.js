@@ -22,7 +22,7 @@
   let frame, exitStarted, current = '', busy = null;
   // запасной выход, если сеть совсем плохая: прелоудер ждёт готовности первого экрана, но не дольше 15 секунд
   const deadline = setTimeout(finish, 9000);
-  let watched = false;
+  let watched = false, slowed = false;
   const chars = t => [...t].map(c => `<span class="ch">${c === ' ' ? '&nbsp;' : c}</span>`).join('');
   // старая подпись уходит вверх по буквам, новая въезжает снизу — как тексты на первом экране
   function setLine(t) {
@@ -57,8 +57,9 @@
     // сайт готов, когда загружены первые кадры и шрифты и главный скрипт расставил первый экран (html.is-ready)
     const load = Math.min(window.siteLoad || 0, document.documentElement.classList.contains('is-ready') ? 1 : .95);
     // если загрузка отстаёт, видео чуть замедляется, но не ползёт: ниже .75 скорость не опускаем
-    const rate = seen > load + .08 ? .75 : 1;
-    if (film.playbackRate !== rate) film.playbackRate = rate;
+    // скорость меняем редко и с запасом: Safari на частое переключение скорости дёргал ролик
+    if (!slowed && seen > load + .12) { slowed = true; film.playbackRate = .75; }
+    else if (slowed && load >= seen) { slowed = false; film.playbackRate = 1; }
     const progress = Math.min(watched ? 1 : seen, load);
     const percent = Math.floor(progress * 100);
     counter.textContent = percent + '%';
